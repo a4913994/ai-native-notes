@@ -5,13 +5,12 @@ import { Route, Switch } from "wouter";
 import { AdminLayout } from "../components/admin-layout";
 import { NotebookShell } from "../components/notebook-shell";
 import { Tips, TipsPage } from "../components/tips";
-import useTableOfContents from "../hooks/useTableOfContents";
 import { CallbackPage } from "../page/callback";
 import { NewsletterPage } from "../page/newsletter";
 import { SocialsPage } from "../page/socials";
 import { CompatTasksPage } from "../page/compat-tasks";
 import { ErrorPage } from "../page/error";
-import { FeedPage, TOCHeader } from "../page/feed";
+import { FeedPage } from "../page/feed";
 import { FeedsPage } from "../page/feeds";
 import { FriendsPage } from "../page/friends";
 import { HealthPage } from "../page/health";
@@ -110,13 +109,13 @@ export function AppRoutes() {
         <ProfilePage />
       </AppRoute>
 
-      <TocRoute path="/feed/:id">
-        {(params, toc, cleanup) => <FeedPage id={params.id || ""} TOC={toc} clean={cleanup} />}
-      </TocRoute>
+      <AppRoute path="/feed/:id">
+        {(params) => <FeedPage id={params.id || ""} />}
+      </AppRoute>
 
-      <TocRoute path="/:alias">
-        {(params, toc, cleanup) => <FeedPage id={params.alias || ""} TOC={toc} clean={cleanup} />}
-      </TocRoute>
+      <AppRoute path="/:alias">
+        {(params) => <FeedPage id={params.alias || ""} />}
+      </AppRoute>
 
       <AppRoute path="/user/github">
         <TipsPage>
@@ -199,18 +198,3 @@ function AdminRoute({
   );
 }
 
-function TocRoute({
-  path,
-  children,
-}: {
-  path: PathPattern;
-  children: (params: DefaultParams, toc: () => JSX.Element, cleanup: (id: string) => void) => ReactNode;
-}) {
-  const { TOC, cleanup } = useTableOfContents(".toc-content");
-
-  return (
-    <AppRoute path={path} headerComponent={<TOCHeader TOC={TOC} />}>
-      {(params) => children(params, TOC, cleanup)}
-    </AppRoute>
-  );
-}

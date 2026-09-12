@@ -859,5 +859,13 @@
   "sort_latest": "新着",
   "sort_popular": "人気",
   "total_tags": "全 {{count}} 個のタグ",
-  "anonymous": "匿名"
+  "anonymous": "匿名",
+  "reading": {
+    "contents": "目次",
+    "navigation": "閲覧ナビゲーション",
+    "progress": "読書の進捗",
+    "hide": "閉じる",
+    "show": "開く",
+    "no_headings": "見出しはありません"
+  }
 }

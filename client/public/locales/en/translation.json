@@ -859,5 +859,13 @@
   "sort_latest": "Latest",
   "sort_popular": "Popular",
   "total_tags": "Total {{count}} tags",
-  "anonymous": "Anonymous"
+  "anonymous": "Anonymous",
+  "reading": {
+    "contents": "On this page",
+    "navigation": "Reading navigation",
+    "progress": "Reading progress",
+    "hide": "Hide",
+    "show": "Show",
+    "no_headings": "No section headings"
+  }
 }

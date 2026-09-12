@@ -859,5 +859,13 @@
   "sort_latest": "最新",
   "sort_popular": "热门",
   "total_tags": "共 {{count}} 个标签",
-  "anonymous": "匿名"
+  "anonymous": "匿名",
+  "reading": {
+    "contents": "文章目录",
+    "navigation": "阅读导航",
+    "progress": "阅读进度",
+    "hide": "收起",
+    "show": "展开",
+    "no_headings": "本文暂无章节标题"
+  }
 }

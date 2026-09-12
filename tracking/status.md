@@ -1,5 +1,15 @@
 # Implementation status
 
+## Reading experience update — 2026-09-12
+
+- Removed article comment UI and its fetches; disabled the existing comment/guest-comment display settings in local and production config without deleting stored comments or changing upstream API routes.
+- Replaced the TOC modal with a fixed desktop right sidebar (1200px+) and an inline mobile accordion. Both use semantic anchor links, current-section highlighting, duplicate-heading IDs and keyboard focus on the destination. Desktop contents can collapse while retaining progress; mobile Escape closes the accordion and restores its trigger focus.
+- Reading percentage tracks the article bounds, excludes footer/adjacent posts, and updates after scrolling, viewport changes, images and font layout changes. Long TOCs scroll independently and keep the active chapter visible.
+- Self-hosted Unicode-subset Noto Serif SC Variable 5.3.0 for article titles/prose, OFL license included; dates/code retain iA Writer Mono. Fixed the missing author-avatar fallback.
+- 469 tests passed (including reading bounds, upward scrolling, long paragraphs, short/no-heading content and resized article regressions). Client/server/CLI type checks and production frontend build passed.
+- Local Chrome verified 360/390/768px without horizontal overflow, actual font loading, mobile anchor focus and progress, no TOC dialog/comments; a private 48-heading local fixture verified duplicate anchors and a middle-article jump at 48% with fixed sidebar top 252px. Fixture deleted after testing.
+- Published the frontend to Cloudflare Pages (deployment `104ec829`); production Chrome at 1440px confirms the fixed two-section TOC, downloaded Chinese font, no comment UI and no horizontal overflow. Existing six article bodies/visibility, pagination, RSS and sitemap still match the pre-deployment snapshot. Backend code and database schema were unchanged.
+
 ## Ready locally
 
 - Homepage redesigned for reading: separate compact identity masthead and sticky 1040px desktop toolbar, 104px two-row mobile toolbar, 640px text column, small avatar, borderless posts and a minimal footer. Search, interface language, theme and account are at the top. System sans-serif for prose; locally bundled iA Writer Mono for brand, dates and code.

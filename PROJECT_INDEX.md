@@ -16,3 +16,5 @@ The public reading layout uses a compact identity masthead, separate sticky navi
 Public navigation follows home / newsletter / blog / github / socials, localized with the interface. Each page has its own introduction and structure: `/blog` groups the complete public archive by year with topic filters (`/timeline` remains compatible); newsletter explains the content, offers RSS subscriptions and links to real posts; socials separates the GitHub profile, blog source and ways to follow. Article details link back to the archive and subscription page.
 
 Keep the upstream MIT license and source history. Blog customizations are intentionally small.
+
+Article reading: comments removed; fixed, collapsible desktop TOC with current-section tracking and reading progress; inline collapsible TOC and bottom progress on smaller screens. Article prose/titles use locally hosted Noto Serif SC Variable under OFL; dates and code retain iA Writer Mono.
