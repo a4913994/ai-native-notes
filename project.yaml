@@ -13,3 +13,4 @@ hosting: cloudflare-pages-workers-d1-r2
 content_status: about-draft-only
 public_design: article-first-sticky-toolbar
 design_reference: https://cassidoo.co/
+admin_design: shared-notebook-workspace

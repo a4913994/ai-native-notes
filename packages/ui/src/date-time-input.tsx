@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const DEFAULT_LABELS = { select: 'Select date and time', previous: 'Previous month', next: 'Next month', clear: 'Clear', done: 'Done', hours: 'Hours', minutes: 'Minutes' };
 
 function atMidnight(value: Date) {
   return new Date(value.getFullYear(), value.getMonth(), value.getDate());
@@ -77,12 +76,18 @@ export function DateTimeInput({
   value,
   onChange,
   className,
+  locale = 'en',
+  labels = DEFAULT_LABELS,
 }: {
   value?: Date;
   onChange: (value?: Date) => void;
   className?: string;
+  locale?: string;
+  labels?: typeof DEFAULT_LABELS;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const weekdays = Array.from({ length: 7 }, (_, day) => new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(new Date(2024, 0, 7 + day)));
   const [isOpen, setIsOpen] = useState(false);
   const [cursor, setCursor] = useState<Date>(value ? new Date(value) : new Date());
   const [hours, setHours] = useState(() => `${value?.getHours() ?? 0}`.padStart(2, "0"));
@@ -132,8 +137,12 @@ export function DateTimeInput({
   }
 
   return (
-    <div ref={rootRef} className={`relative min-w-0 ${className ?? ""}`}>
+    <div ref={rootRef} className={`rin-date-time relative min-w-0 ${className ?? ""}`} onKeyDown={event => {
+      if (event.key === 'Escape' && isOpen) { event.preventDefault(); setIsOpen(false); triggerRef.current?.focus(); }
+    }}>
       <button
+        ref={triggerRef}
+        aria-expanded={isOpen}
         type="button"
         onClick={() => {
           setCursor(value ? new Date(value) : new Date());
@@ -142,13 +151,13 @@ export function DateTimeInput({
         className="flex w-full items-center justify-between gap-3 rounded-xl border border-black/10 bg-w px-4 py-2 text-left text-sm t-primary transition-colors hover:border-black/20 focus:outline-none focus:ring-2 focus:ring-theme/10 dark:border-white/10 dark:hover:border-white/20"
       >
         <span className={value ? "t-primary" : "text-neutral-400 dark:text-neutral-500"}>
-          {value ? formatDisplay(value) : "Select date and time"}
+          {value ? formatDisplay(value) : labels.select}
         </span>
         <i className={`ri-calendar-line text-base text-neutral-400 transition-transform ${isOpen ? "text-theme" : ""}`} />
       </button>
 
       {isOpen ? (
-        <div className="absolute right-0 top-[calc(100%+0.5rem)] z-30 w-[20rem] rounded-2xl border border-black/10 bg-w p-4 shadow-lg dark:border-white/10">
+        <div className="rin-date-time-panel absolute right-0 top-[calc(100%+0.5rem)] z-30 w-[20rem] rounded-2xl border border-black/10 bg-w p-4 shadow-lg dark:border-white/10">
           <div className="flex items-center justify-between">
             <button
               type="button"
@@ -156,12 +165,12 @@ export function DateTimeInput({
                 setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1));
               }}
               className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-neutral-200"
-              aria-label="Previous month"
+              aria-label={labels.previous}
             >
               <i className="ri-arrow-left-s-line" />
             </button>
             <div className="text-sm font-semibold t-primary">
-              {MONTHS[cursor.getMonth()]} {cursor.getFullYear()}
+              {new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long' }).format(cursor)}
             </div>
             <button
               type="button"
@@ -169,14 +178,14 @@ export function DateTimeInput({
                 setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1));
               }}
               className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-neutral-200"
-              aria-label="Next month"
+              aria-label={labels.next}
             >
               <i className="ri-arrow-right-s-line" />
             </button>
           </div>
 
           <div className="mt-4 grid grid-cols-7 gap-1">
-            {WEEKDAYS.map((weekday) => (
+            {weekdays.map((weekday) => (
               <div key={weekday} className="pb-2 text-center text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
                 {weekday}
               </div>
@@ -210,6 +219,7 @@ export function DateTimeInput({
               type="number"
               min={0}
               max={23}
+              aria-label={labels.hours}
               value={hours}
               onChange={(event) => {
                 applyTime(event.target.value, minutes);
@@ -221,6 +231,7 @@ export function DateTimeInput({
               type="number"
               min={0}
               max={59}
+              aria-label={labels.minutes}
               value={minutes}
               onChange={(event) => {
                 applyTime(hours, event.target.value);
@@ -235,20 +246,22 @@ export function DateTimeInput({
               onClick={() => {
                 onChange(undefined);
                 setIsOpen(false);
+                triggerRef.current?.focus();
               }}
               className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-neutral-200"
             >
               <i className="ri-close-line" />
-              <span>Clear</span>
+              <span>{labels.clear}</span>
             </button>
             <button
               type="button"
               onClick={() => {
                 setIsOpen(false);
+                triggerRef.current?.focus();
               }}
               className="inline-flex items-center gap-2 rounded-xl bg-theme px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-theme-hover active:bg-theme-active"
             >
-              <span>Done</span>
+              <span>{labels.done}</span>
             </button>
           </div>
         </div>

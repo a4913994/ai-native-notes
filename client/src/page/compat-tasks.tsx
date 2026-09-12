@@ -10,7 +10,7 @@ import { useSiteConfig } from "../hooks/useSiteConfig";
 import { enrichMarkdownImageMetadata } from "../utils/image-upload";
 
 export function CompatTasksPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const siteConfig = useSiteConfig();
   const [loading, setLoading] = useState(true);
   const [generatedAt, setGeneratedAt] = useState("");
@@ -118,7 +118,7 @@ export function CompatTasksPage() {
 
       {generatedAt ? (
         <p className="text-sm text-neutral-500 dark:text-neutral-400">
-          {t("compat_tasks.generated_at", { date: new Date(generatedAt).toLocaleString() })}
+          {t("compat_tasks.generated_at", { date: new Date(generatedAt).toLocaleString(i18n.resolvedLanguage || 'zh-CN') })}
         </p>
       ) : null}
 

@@ -4,7 +4,7 @@
 
 - Homepage redesigned for reading: sticky 1040px desktop toolbar, 104px two-row mobile toolbar, 720px text column, small avatar, borderless posts and a minimal footer. Search, interface language, theme and account are at the top. System sans-serif for prose; locally bundled iA Writer Mono for brand, dates and code.
 - Local `/?preview=1` offers five explicitly marked, clickable typography examples without modifying D1 or RSS. Verified sample prose is absent from production assets.
-- Homepage, feed rows, search/tag result rows and article reading styles unified; admin editor remains original. Empty home is intentional until real articles are published.
+- Homepage, feed rows, search/tag result rows and article reading styles unified; admin editor preserves its original functionality with the shared notebook style. Empty home is intentional until real articles are published.
 
 - Upstream pinned: `308a542df6165bbf757fad111d7f8ab6296db771`; personal fork created at `a4913994/ai-native-notes`.
 - Bun 1.3.13 installed; frozen dependency installation completed.
@@ -34,6 +34,13 @@
 - In-memory SQL regression fixtures cover more than one page of Chinese, English, untagged and dual-tag articles, counts, unknown tags, private/unlisted exclusion for anonymous and administrator homepages, cache isolation and invalidation after tag/visibility edits.
 - URL and preference regression tests cover article tag mapping, invalid pagination, filter/page preservation, Chinese default and saved UI language, all retained homepage translations, theme restoration and live system theme changes.
 - This redesign does not modify existing article content or deploy to Cloudflare. The real local homepage is still empty; preview samples are development-only.
+
+## Admin style alignment
+
+- Shared public/admin shell: sticky toolbar, locale/theme/account/search controls, lightweight administration navigation, paper background and restrained green actions. Settings/status content stays at 720px; writing uses the wider workspace.
+- Added persistent form labels, matching Monaco/preview colors, responsive editor toolbar, opaque sticky settings-save prompt, and localized date calendar with Escape/focus return. Shared component style hooks remain scoped to the admin page.
+- Verified 360px settings, 390px writing/calendar/preview, 768px status pages, and 1440px desktop writing. No page-level horizontal overflow in the inspected layouts. Settings draft was reset without saving; no article content was edited or published.
+- Regression suite: 459 tests passed; client/server/CLI type checks and production frontend/Worker dry-run builds passed. Date calendar regression tests cover localization, Escape focus restoration, date/time preservation and clearing.
 
 ## Cloud deployment pending
 

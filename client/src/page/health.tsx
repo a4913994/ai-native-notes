@@ -50,7 +50,7 @@ function HealthCard({ item }: { item: ConfigHealthItem }) {
 }
 
 export function HealthPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const siteConfig = useSiteConfig();
   const loadHealth = useCallback(() => client.config.getHealth(), []);
   const { data, loading, error } = useApiResource<ConfigHealthResponse>(loadHealth);
@@ -83,7 +83,7 @@ export function HealthPage() {
 
       {generatedAt ? (
         <p className="text-sm text-neutral-500 dark:text-neutral-400">
-          {t("health.generated_at", { date: new Date(generatedAt).toLocaleString() })}
+          {t("health.generated_at", { date: new Date(generatedAt).toLocaleString(i18n.resolvedLanguage || 'zh-CN') })}
         </p>
       ) : null}
 

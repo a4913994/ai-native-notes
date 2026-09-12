@@ -8,6 +8,7 @@ import { useAlert } from "./dialog";
 import { useColorMode } from "../utils/darkModeUtils";
 import { buildMarkdownImage, uploadImageFile } from "../utils/image-upload";
 import { Markdown } from "./markdown";
+import { NotebookContext } from './notebook-context';
 
 
 interface MarkdownEditorProps {
@@ -65,9 +66,10 @@ function MarkdownToolButton({
   );
 }
 
-export function MarkdownEditor({ content, setContent, placeholder = "> Write your content here...", height = "400px" }: MarkdownEditorProps) {
+export function MarkdownEditor({ content, setContent, placeholder, height = "400px" }: MarkdownEditorProps) {
   const { t } = useTranslation();
   const colorMode = useColorMode();
+  const notebook = React.useContext(NotebookContext);
   const editorRef = useRef<editor.IStandaloneCodeEditor>();
   const isComposingRef = useRef(false);
   const [preview, setPreview] = useState<'edit' | 'preview' | 'comparison'>('edit');
@@ -398,7 +400,7 @@ export function MarkdownEditor({ content, setContent, placeholder = "> Write you
 
   return (
     <div className="flex flex-col gap-0 sm:gap-3">
-      <FlatInset className="flex flex-wrap items-center gap-2 border-0 border-b border-black/10 rounded-none bg-transparent p-2 dark:border-white/10 sm:p-3">
+      <FlatInset className="markdown-editor-toolbar flex flex-wrap items-center gap-2 border-0 border-b border-black/10 rounded-none bg-transparent p-2 dark:border-white/10 sm:p-3">
         <div className="flex shrink-0 flex-wrap items-center gap-1">
           <FlatTabButton active={preview === 'edit'} onClick={() => setPreview('edit')}> {t("edit")} </FlatTabButton>
           <FlatTabButton active={preview === 'preview'} onClick={() => setPreview('preview')}> {t("preview")} </FlatTabButton>
@@ -449,16 +451,29 @@ export function MarkdownEditor({ content, setContent, placeholder = "> Write you
             onPaste={handlePaste}
           >
             <Editor
+              beforeMount={monaco => {
+                monaco.editor.defineTheme('notebook-light', {
+                  base: 'vs', inherit: true, rules: [],
+                  colors: { 'editor.background': '#faf9f6', 'editor.foreground': '#292c32', 'editorLineNumber.foreground': '#676c74', 'editor.lineHighlightBackground': '#f1f0eb' },
+                });
+                monaco.editor.defineTheme('notebook-dark', {
+                  base: 'vs-dark', inherit: true, rules: [],
+                  colors: { 'editor.background': '#232527', 'editor.foreground': '#ebece8', 'editorLineNumber.foreground': '#a6abb1', 'editor.lineHighlightBackground': '#2b2e31' },
+                });
+              }}
               onMount={handleEditorMount}
               height={height}
               defaultLanguage="markdown"
               defaultValue={content}
-              theme={colorMode === "dark" ? "vs-dark" : "light"}
+              theme={notebook ? `notebook-${colorMode}` : colorMode === "dark" ? "vs-dark" : "light"}
               options={{
                 wordWrap: "on",
 
                 // Chinese IME stability key
-                fontFamily: "Sarasa Mono SC, JetBrains Mono, monospace",
+                fontFamily: notebook ? '"iA Writer Mono", "Microsoft YaHei", monospace' : "Sarasa Mono SC, JetBrains Mono, monospace",
+                automaticLayout: true,
+                minimap: { enabled: false },
+                padding: { top: 16, bottom: 16 },
                 fontLigatures: false,
                 letterSpacing: 0,
 
@@ -482,7 +497,7 @@ export function MarkdownEditor({ content, setContent, placeholder = "> Write you
           className={"min-h-0 overflow-y-auto rounded-none border-0 bg-w px-4 py-4 border-t sm:border-none " + (preview === 'edit' ? "hidden" : "")}
           style={{ height: height }}
         >
-          <Markdown content={content ? content : placeholder} />
+          <Markdown content={content || placeholder || t('admin.editor_placeholder')} />
         </div>
       </div>
       <AlertUI />

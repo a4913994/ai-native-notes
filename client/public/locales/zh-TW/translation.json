@@ -58,7 +58,18 @@
     "queue_status_description": "查看 AI 摘要佇列進度、最近任務結果與失敗資訊。",
     "settings_description": "在統一的後台空間中管理站點行為、整合配置與發佈規則。",
     "title": "後台管理",
-    "writing_description": "在獨立的管理工作區中編寫、編輯並發佈內容。"
+    "writing_description": "在獨立的管理工作區中編寫、編輯並發佈內容。",
+    "article_details": "文章資訊",
+    "editor_placeholder": "在這裡開始寫作，預覽會隨內容更新。",
+    "date": {
+      "select": "選擇日期與時間",
+      "previous": "上個月",
+      "next": "下個月",
+      "clear": "清除",
+      "done": "完成",
+      "hours": "小時",
+      "minutes": "分鐘"
+    }
   },
   "compat_tasks": {
     "title": "相容任務",

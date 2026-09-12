@@ -118,7 +118,7 @@ async function update({
 
 // 写作页面
 export function WritingPage({ id }: { id?: number }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const siteConfig = useSiteConfig();
   const cache = Cache.with(id);
   const [title, setTitle] = cache.useCache("title", "");
@@ -230,7 +230,7 @@ export function WritingPage({ id }: { id?: number }) {
     return (
       <button
         onClick={publishButton}
-        className={`inline-flex items-center justify-center gap-2 rounded-xl bg-theme px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-theme-hover active:bg-theme-active disabled:cursor-not-allowed disabled:opacity-60 ${className ?? ""}`}
+        className={`admin-primary-action inline-flex items-center justify-center gap-2 rounded-xl bg-theme px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-theme-hover active:bg-theme-active disabled:cursor-not-allowed disabled:opacity-60 ${className ?? ""}`}
         disabled={publishing}
       >
         {publishing && <Loading type="spin" height={16} width={16} />}
@@ -242,18 +242,14 @@ export function WritingPage({ id }: { id?: number }) {
   function MetaInput({ className }: { className?: string }) {
     return (
         <FlatPanel className={className}>
-          <div className="flex flex-row gap-4 border-b border-black/5 pb-5 dark:border-white/5 items-start justify-between">
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-theme/70">{t('writing')}</p>
-              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-                {id !== undefined ? t("update.title") : t("publish.title")}
-              </p>
-            </div>
+          <div className="admin-writing-meta-heading">
+            <h2>{t('admin.article_details')}</h2>
             <PublishButton className="w-auto" />
           </div>
 
-          <div className="mt-5 grid gap-4 lg:grid-cols-2">
-            <div className="lg:col-span-2">
+          <div className="admin-writing-fields">
+            <label className="admin-writing-field admin-writing-field-wide admin-writing-field-title">
+              <span>{t('title')}</span>
               <Input
                 id={id}
                 value={title}
@@ -262,32 +258,22 @@ export function WritingPage({ id }: { id?: number }) {
                 variant="flat"
                 className="text-base"
               />
-            </div>
-            <Input
-              id={id}
-              value={summary}
-              setValue={setSummary}
-              placeholder={t("summary")}
-              variant="flat"
-            />
-            <Input
-              id={id}
-              value={alias}
-              setValue={setAlias}
-              placeholder={t("alias")}
-              variant="flat"
-            />
-            <Input
-              id={id}
-              value={tags}
-              setValue={setTags}
-              placeholder={t("tags")}
-              variant="flat"
-              className="lg:col-span-2"
-            />
+            </label>
+            <label className="admin-writing-field">
+              <span>{t('summary')}</span>
+              <Input id={id} value={summary} setValue={setSummary} placeholder={t("summary")} variant="flat" />
+            </label>
+            <label className="admin-writing-field">
+              <span>{t('alias')}</span>
+              <Input id={id} value={alias} setValue={setAlias} placeholder={t("alias")} variant="flat" />
+            </label>
+            <label className="admin-writing-field admin-writing-field-wide">
+              <span>{t('tags')}</span>
+              <Input id={id} value={tags} setValue={setTags} placeholder={t("tags")} variant="flat" />
+            </label>
           </div>
 
-          <div className="mt-5 grid gap-2 sm:gap-3 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(18rem,2fr)]">
+          <div className="admin-writing-options">
             <FlatMetaRow
               className="cursor-pointer rounded-none border-0 bg-transparent px-0 py-2 sm:rounded-2xl sm:border sm:bg-secondary sm:px-4 sm:py-3"
               onClick={() => setDraft(!draft)}
@@ -316,7 +302,9 @@ export function WritingPage({ id }: { id?: number }) {
               <p className="mr-2 whitespace-nowrap">
                 {t('created_at')}
               </p>
-              <DateTimeInput value={createdAt} onChange={setCreatedAt} className="w-full max-w-[16rem]" />
+              <DateTimeInput value={createdAt} onChange={setCreatedAt} className="w-full max-w-[16rem]"
+                locale={i18n.resolvedLanguage || 'zh-CN'}
+                labels={{ select: t('admin.date.select'), previous: t('admin.date.previous'), next: t('admin.date.next'), clear: t('admin.date.clear'), done: t('admin.date.done'), hours: t('admin.date.hours'), minutes: t('admin.date.minutes') }} />
             </FlatMetaRow>
           </div>
         </FlatPanel>
@@ -333,8 +321,8 @@ export function WritingPage({ id }: { id?: number }) {
         <meta property="og:type" content="article" />
         <meta property="og:url" content={document.URL} />
       </Helmet>
-      <div className="mt-2 flex flex-col gap-4 t-primary sm:gap-6">
-        {MetaInput({ className: "p-4 sm:p-5 md:p-6" })}
+      <div className="admin-writing-form t-primary">
+        {MetaInput({ className: "admin-writing-meta" })}
 
         <FlatPanel className="overflow-hidden p-0">
           <MarkdownEditor content={content} setContent={setContent} height='680px' />

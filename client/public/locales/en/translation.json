@@ -58,7 +58,18 @@
     "queue_status_description": "Inspect AI summary queue progress, recent task results, and failures.",
     "settings_description": "Manage site behavior, integrations, and publishing rules in one place.",
     "title": "Admin",
-    "writing_description": "Write, edit, and publish content from the private management workspace."
+    "writing_description": "Write, edit, and publish content from the private management workspace.",
+    "article_details": "Article details",
+    "editor_placeholder": "Start writing here. Your preview updates with your content.",
+    "date": {
+      "select": "Select date and time",
+      "previous": "Previous month",
+      "next": "Next month",
+      "clear": "Clear",
+      "done": "Done",
+      "hours": "Hours",
+      "minutes": "Minutes"
+    }
   },
   "compat_tasks": {
     "title": "Compatibility Tasks",

@@ -12,7 +12,7 @@ export function FlatPanel({
   className?: string;
 }) {
   return (
-    <div className={joinClasses("rounded-2xl border border-black/10 bg-w dark:border-white/10", className)}>
+    <div className={joinClasses("rin-flat-panel rounded-2xl border border-black/10 bg-w dark:border-white/10", className)}>
       {children}
     </div>
   );
@@ -43,7 +43,7 @@ export function FlatTabButton({
     <button
       {...props}
       className={joinClasses(
-        "rounded-xl px-3 py-2 text-sm transition-colors",
+        "rin-flat-tab rounded-xl px-3 py-2 text-sm transition-colors",
         active ? "bg-w text-theme" : "text-neutral-500 dark:text-neutral-400",
         className,
       )}

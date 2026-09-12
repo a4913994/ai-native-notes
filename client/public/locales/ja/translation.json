@@ -58,7 +58,18 @@
     "queue_status_description": "AI 要約キューの進行状況、最近のタスク結果、失敗内容を確認します。",
     "settings_description": "サイトの挙動、連携設定、公開ルールを一か所で管理します。",
     "title": "管理画面",
-    "writing_description": "非公開の管理ワークスペースから記事を作成、編集、公開します。"
+    "writing_description": "非公開の管理ワークスペースから記事を作成、編集、公開します。",
+    "article_details": "記事の情報",
+    "editor_placeholder": "ここから書き始めましょう。内容に合わせてプレビューが更新されます。",
+    "date": {
+      "select": "日時を選択",
+      "previous": "前の月",
+      "next": "次の月",
+      "clear": "クリア",
+      "done": "完了",
+      "hours": "時",
+      "minutes": "分"
+    }
   },
   "compat_tasks": {
     "title": "互換タスク",

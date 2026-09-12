@@ -8,7 +8,7 @@ export function SettingsSectionTitle({
   eyebrow?: string;
 }) {
   return (
-    <div className="pt-6 first:pt-0">
+    <div className="rin-settings-section-title pt-6 first:pt-0">
       {eyebrow ? <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-theme/70">{eyebrow}</p> : null}
       <h2 className="mt-1 text-sm font-semibold uppercase tracking-[0.18em] text-neutral-700 dark:text-neutral-200">{title}</h2>
     </div>
@@ -33,7 +33,8 @@ export function SettingsCard({
 
   return (
     <div
-      className={`w-full rounded-xl border ${toneClass} bg-w p-5`}
+      data-tone={tone}
+      className={`rin-settings-card w-full rounded-xl border ${toneClass} bg-w p-5`}
     >
       {children}
     </div>
@@ -50,7 +51,7 @@ export function SettingsCardHeader({
   badge?: ReactNode;
 }) {
   return (
-    <div className="min-w-0 flex-1">
+    <div className="rin-settings-card-header min-w-0 flex-1">
       <div className="flex items-center gap-2">
         <p className="text-base font-semibold tracking-[-0.02em] t-primary">{title}</p>
         {badge}
@@ -76,7 +77,7 @@ export function SettingsCardRow({
 }
 
 export function SettingsCardBody({ children }: { children: ReactNode }) {
-  return <div className="mt-4 border-t border-black/5 pt-4 dark:border-white/5">{children}</div>;
+  return <div className="rin-settings-card-body mt-4 border-t border-black/5 pt-4 dark:border-white/5">{children}</div>;
 }
 
 export function SettingsBadge({

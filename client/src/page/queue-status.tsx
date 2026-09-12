@@ -27,7 +27,7 @@ function QueueStatusEntry({
   onRetry: (item: QueueStatusItem) => void;
   onDelete: (item: QueueStatusItem) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const canRetry = item.aiSummaryStatus === "failed";
   const canDelete = item.aiSummaryStatus === "failed" || item.aiSummaryStatus === "completed";
 
@@ -41,7 +41,7 @@ function QueueStatusEntry({
       <SettingsCardBody>
         <div className="space-y-2 text-sm text-neutral-600 dark:text-neutral-300">
           <p>{t("queue_status.feed_id", { id: item.id })}</p>
-          <p>{t("queue_status.updated_at", { date: new Date(item.updatedAt).toLocaleString() })}</p>
+          <p>{t("queue_status.updated_at", { date: new Date(item.updatedAt).toLocaleString(i18n.resolvedLanguage || 'zh-CN') })}</p>
           {item.aiSummaryError ? (
             <p className="whitespace-pre-wrap text-rose-600 dark:text-rose-300">{item.aiSummaryError}</p>
           ) : null}
@@ -71,7 +71,7 @@ function QueueStatusEntry({
 }
 
 export function QueueStatusPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const siteConfig = useSiteConfig();
   const emptySummary: QueueStatusResponse["summary"] = {
     idle: 0,
@@ -125,7 +125,7 @@ export function QueueStatusPage() {
 
       {generatedAt ? (
         <p className="text-sm text-neutral-500 dark:text-neutral-400">
-          {t("queue_status.generated_at", { date: new Date(generatedAt).toLocaleString() })}
+          {t("queue_status.generated_at", { date: new Date(generatedAt).toLocaleString(i18n.resolvedLanguage || 'zh-CN') })}
         </p>
       ) : null}
 

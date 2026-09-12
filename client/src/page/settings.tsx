@@ -659,7 +659,7 @@ export function Settings() {
           />
 
           {hasUnsavedChanges && (
-            <div className="sticky bottom-4 z-20 mt-6 w-full pb-2">
+            <div className="admin-settings-save sticky bottom-4 z-20 mt-6 w-full pb-2">
               <SettingsCard tone="warning">
               <SettingsCardRow
                 header={

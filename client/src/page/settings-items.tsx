@@ -67,6 +67,7 @@ export function ItemInput({
       <SettingsCard>
         <button
           type="button"
+          aria-expanded={isOpen}
           className="block w-full text-left"
           onClick={() => {
             setIsOpen((current) => {
@@ -92,6 +93,7 @@ export function ItemInput({
         {isOpen ? (
           <SettingsCardBody>
             <textarea
+              aria-label={title}
               placeholder={placeholder || configKeyTitle}
               value={value}
               onChange={(event) => {

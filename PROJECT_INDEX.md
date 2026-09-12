@@ -9,4 +9,6 @@ Rin-based bilingual personal blog. Chinese and English posts share one feed and 
 - [.env.blog.example](.env.blog.example): local defaults; real credentials live in ignored `.env.local`.
 - [.env.production.example](.env.production.example): production template; real credentials live in ignored `.env.production.local`.
 
+The administration workspace shares the public notebook style and common toolbar controls.
+
 Keep the upstream MIT license and source history. Blog customizations are intentionally small.

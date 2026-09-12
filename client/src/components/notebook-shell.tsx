@@ -12,16 +12,22 @@ export { NotebookContext } from "./notebook-context";
 import "./notebook.css";
 import "@fontsource/ia-writer-mono/latin-400.css";
 
-export function NotebookShell({ children, tools }: { children: ReactNode; tools?: ReactNode }) {
+export function NotebookShell({ children, tools, navigation, admin = false }: {
+  children: ReactNode;
+  tools?: ReactNode;
+  navigation?: [string, string][];
+  admin?: boolean;
+}) {
   const { t } = useTranslation();
   const site = useSiteConfig();
   const profile = useContext(ProfileContext);
   const config = useContext(ClientConfigContext);
   const [location, navigate] = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [location]);
-  const links = [['/', t('notebook.home')], ['/timeline', t('notebook.archive')], ['/hashtags', t('notebook.topics')], ['/friends', t('notebook.friends')]];
+  const links = navigation || [['/', t('notebook.home')], ['/timeline', t('notebook.archive')], ['/hashtags', t('notebook.topics')], ['/friends', t('notebook.friends')]];
+  const navigationLabel = t(admin ? 'admin.title' : 'notebook.navigation');
   return <NotebookContext.Provider value>
-    <div className="notebook-shell">
+    <div className={`notebook-shell${admin ? ' notebook-admin' : ''}`}>
       <Helmet>
         <meta name="description" content={site.localizedDescription} />
         {config.getBoolean('rss') && <link rel="alternate" type="application/rss+xml" title={site.name} href="/rss.xml" />}
@@ -31,10 +37,10 @@ export function NotebookShell({ children, tools }: { children: ReactNode; tools?
         <div className="notebook-topbar-inner">
           <div className="notebook-brand">{location === '/' ? <h1><Link href="/">{site.name}</Link></h1> : <Link href="/">{site.name}</Link>}</div>
           <div className="notebook-navigation">
-            <nav className="notebook-desktop-nav" aria-label={t('notebook.navigation')}>
-              {links.map(([href, label]) => <Link key={href} href={href} aria-current={location === href ? 'page' : undefined}>{label}</Link>)}
+            <nav className="notebook-desktop-nav" aria-label={navigationLabel}>
+              {links.map(([href, label]) => <Link key={href} href={href} aria-current={location === href || (admin && location.startsWith(`${href}/`)) ? 'page' : undefined}>{label}</Link>)}
             </nav>
-            <div className="notebook-mobile-nav"><ToolbarMenu label={t('notebook.navigation')} icon="ri-menu-line" items={links.map(([href,label]) => ({label,action:()=>navigate(href)}))}><span>{t('notebook.navigation_short')}</span></ToolbarMenu></div>
+            <div className="notebook-mobile-nav"><ToolbarMenu label={navigationLabel} icon="ri-menu-line" items={links.map(([href,label]) => ({label,action:()=>navigate(href)}))}><span>{t('notebook.navigation_short')}</span></ToolbarMenu></div>
           </div>
           <SearchButton plain className="notebook-search" />
           <div className="notebook-controls">
