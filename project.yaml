@@ -5,7 +5,11 @@ upstream: https://github.com/openRin/Rin
 upstream_commit: 308a542df6165bbf757fad111d7f8ab6296db771
 bun: 1.3.13
 local_url: http://localhost:11498
-production_url: https://ai-native-notes-a4913994.pages.dev
+production_url: https://aifield.cc
+production_legacy_url: https://ai-native-notes-a4913994.pages.dev
+custom_domains: [aifield.cc, www.aifield.cc]
+contact_email: contact@aifield.cc
+email_service: cloudflare-email-routing
 production_worker: ai-native-notes-server
 production_pages: ai-native-notes-a4913994
 production_database: ai-native-notes

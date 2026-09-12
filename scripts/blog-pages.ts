@@ -1,6 +1,6 @@
 import { cp, mkdir } from 'node:fs/promises';
 
-export async function publishPages(project: string, worker: string) {
+export async function publishPages(project: string, worker: string, canonicalOrigin?: string) {
   // A fresh directory prevents old hashed bundles from entering the next release.
   // Retain previous build outputs locally; no recursive deletion is required.
   const output = `dist/pages-${Date.now()}`;
@@ -12,6 +12,7 @@ export async function publishPages(project: string, worker: string) {
   }
   await run(['build', 'deploy/pages-worker.ts', '--target=browser', `--outfile=${output}/_worker.js`]);
   await mkdir('deploy/pages', {recursive:true});
-  await Bun.write('deploy/pages/wrangler.toml', `name = ${JSON.stringify(project)}\npages_build_output_dir = "../../${output}"\ncompatibility_date = "2026-01-20"\n[[services]]\nbinding = "BACKEND"\nservice = ${JSON.stringify(worker)}\n`);
+  const canonicalVars = canonicalOrigin ? `\n[vars]\nCANONICAL_ORIGIN = ${JSON.stringify(canonicalOrigin)}\nLEGACY_HOST = ${JSON.stringify(`${project}.pages.dev`)}\n` : '';
+  await Bun.write('deploy/pages/wrangler.toml', `name = ${JSON.stringify(project)}\npages_build_output_dir = "../../${output}"\ncompatibility_date = "2026-01-20"\n${canonicalVars}\n[[services]]\nbinding = "BACKEND"\nservice = ${JSON.stringify(worker)}\n`);
   await run(['x','wrangler','pages','deploy',`../../${output}`,'--project-name',project,'--branch','main','--commit-dirty=true'],'deploy/pages');
 }

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it, test } from "bun:test";
 import worker from "./pages-worker";
 
 describe("Pages gateway", () => {
@@ -28,4 +28,31 @@ describe("Pages gateway", () => {
     expect(await (await worker.fetch(new Request("https://notes.pages.dev/feed/12"), env)).text()).toBe("app");
     expect((await worker.fetch(new Request("https://notes.pages.dev/missing.png"), env)).status).toBe(404);
   });
+});
+
+const env = {
+  CANONICAL_ORIGIN: 'https://aifield.cc', LEGACY_HOST: 'blog.pages.dev',
+  ASSETS: {fetch: async () => new Response('asset')},
+  BACKEND: {fetch: async (r: Request) => new Response(`${r.method} ${new URL(r.url).pathname}`)},
+};
+test('legacy and www document links preserve paths and queries on canonical origin', async () => {
+  for (const host of ['blog.pages.dev', 'www.aifield.cc']) {
+    const response = await worker.fetch(new Request(`https://${host}/feed/2?ref=rss`), env);
+    expect(response.status).toBe(308);
+    expect(response.headers.get('location')).toBe('https://aifield.cc/feed/2?ref=rss');
+  }
+});
+test('canonical and preview hosts do not loop or redirect', async () => {
+  for (const host of ['aifield.cc', 'preview.blog.pages.dev']) {
+    expect((await worker.fetch(new Request(`https://${host}/feed/2`), env)).status).toBe(200);
+  }
+  expect((await worker.fetch(new Request('https://blog.pages.dev/'), {...env, CANONICAL_ORIGIN:'https://blog.pages.dev'})).status).toBe(200);
+});
+test('legacy API requests keep their origin and methods, and cached assets keep working', async () => {
+  for (const method of ['GET', 'POST']) {
+    const response = await worker.fetch(new Request('https://blog.pages.dev/api/auth/login', {method}), env);
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe(`${method} /api/auth/login`);
+  }
+  expect(await (await worker.fetch(new Request('https://blog.pages.dev/assets/main.js'), env)).text()).toBe('asset');
 });

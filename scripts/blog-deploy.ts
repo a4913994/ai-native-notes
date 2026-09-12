@@ -14,7 +14,8 @@ for (const name of required) if (!env[name]) throw new Error(`Missing production
 if (env.ADMIN_PASSWORD.length < 24 || env.JWT_SECRET.length < 32) throw new Error("Use a random production password (24+ characters) and JWT secret (32+ characters).");
 const dev = parseEnv(await Bun.file(".env.local").text());
 for (const name of ["ADMIN_PASSWORD", "JWT_SECRET"]) if (env[name] === dev[name]) throw new Error(`Production ${name} must differ from development.`);
-if (env.FRONTEND_URL !== `https://${env.PAGES_NAME}.pages.dev`) throw new Error("First deployment uses the Pages default domain; align FRONTEND_URL with PAGES_NAME.");
+const frontend = new URL(env.FRONTEND_URL);
+if (frontend.protocol !== 'https:' || frontend.origin !== env.FRONTEND_URL) throw new Error('FRONTEND_URL must be an HTTPS origin without a trailing slash.');
 if (env.S3_ACCESS_HOST !== `${env.FRONTEND_URL}/api/blob`) throw new Error("Use the verified same-origin /api/blob endpoint for R2 images.");
 for (const name of ["PAGES_NAME", "WORKER_NAME", "DB_NAME", "R2_BUCKET_NAME"]) if (!/^ai-native-notes[a-z0-9-]*$/.test(env[name])) throw new Error(`Invalid blog resource name: ${name}`);
 // Avoid inheriting local OAuth, S3 credentials or development defaults from Bun's dotenv loader.
@@ -45,11 +46,14 @@ const projects = await cf("/pages/projects");
 const project = projects.find((project: any) => project.name === env.PAGES_NAME)
   || await cf("/pages/projects", "POST", { name: env.PAGES_NAME, production_branch: "main" });
 if (`https://${project.subdomain}` !== env.FRONTEND_URL) {
-  throw new Error(`Pages assigned ${project.subdomain}. Choose a unique PAGES_NAME and update FRONTEND_URL/S3_ACCESS_HOST before publishing.`);
+  const domains = await cf(`/pages/projects/${env.PAGES_NAME}/domains`);
+  if (!domains.some((domain: any) => domain.name === frontend.hostname && domain.status === 'active')) {
+    throw new Error(`Bind and activate ${frontend.hostname} in the Pages project before deploying with this FRONTEND_URL.`);
+  }
 }
 await run(["run", "build:client"]);
 await runCloudflareDeploy("all");
-await publishPages(env.PAGES_NAME, env.WORKER_NAME);
+await publishPages(env.PAGES_NAME, env.WORKER_NAME, env.FRONTEND_URL);
 await mkdir("backups", { recursive: true });
 await run(["x", "wrangler", "d1", "export", env.DB_NAME, "--remote", "--output", `backups/before-acceptance-${Date.now()}.sql`]);
 console.log(`Deployed ${env.FRONTEND_URL}. Import the reviewed content snapshot on first deployment, then verify from the user's network.`);

@@ -2,7 +2,7 @@
 
 Rin-based bilingual personal blog. Chinese and English posts share one real feed and use topic tags. Search, interface language, theme and account appear in a separate top-right homepage utility row; other public pages retain navigation only. Admin pages retain their operational controls. The global language preference changes interface text; there is no separate article-language filter or layout-preview mode.
 
-Live site: https://ai-native-notes-a4913994.pages.dev · Login: https://ai-native-notes-a4913994.pages.dev/login. Deployed and checked from the current computer's network on 2026-09-12. Production contains the same five public articles and private About draft as the local snapshot; credentials are separate in ignored `.env.production.local`.
+Live site: https://aifield.cc · Login: https://aifield.cc/login. The legacy Pages domain and www redirect public pages to the main domain. Deployed and checked from the current computer's network on 2026-09-12. Production contains the same five public articles and private About draft as the local snapshot; credentials are separate in ignored `.env.production.local`. Contact address: contact@aifield.cc, using free Cloudflare Email Routing to the owner's verified mailbox.
 
 - [Local setup and operations](BLOG_SETUP.md)
 - [Implementation and verification status](tracking/status.md)

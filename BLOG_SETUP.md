@@ -7,9 +7,13 @@
 
 2026-09-12 已发布并从当前电脑网络验收：
 
-- 博客：https://ai-native-notes-a4913994.pages.dev
-- 登录：https://ai-native-notes-a4913994.pages.dev/login
-- 管理设置：https://ai-native-notes-a4913994.pages.dev/admin/settings
+- 博客：https://aifield.cc
+- 登录：https://aifield.cc/login
+- 管理设置：https://aifield.cc/admin/settings
+
+`www.aifield.cc` 和原 Pages 默认域名的公开页面会保留路径、查询参数跳转到主域名；原域名的 API、图片和构建资源保持兼容。Pages 自定义域名需显示已激活，部署脚本才接受自有域名。生产环境使用 `FRONTEND_URL=https://aifield.cc`、`S3_ACCESS_HOST=https://aifield.cc/api/blob` 和 `S3_CACHE_FOLDER=cache/aifield.cc/`，避免沿用旧域名的 RSS/站点地图缓存。
+
+免费域名邮箱为 `contact@aifield.cc`，通过 Cloudflare Email Routing 转发至站主确认且已验证的邮箱；具体目标在 Cloudflare 后台管理，不写入公共仓库。MX、SPF、DKIM 由 Cloudflare 管理，全收规则保持关闭。该配置用于收件转发，不提供独立邮箱登录或 SMTP 发信账号。更换邮件服务商时需协调替换 DNS 邮件记录，避免叠加冲突的 MX/SPF。实际投递验收应使用另一个邮箱发送测试邮件，并检查目标邮箱和路由活动日志。
 - 用户名：`admin`；生产密码见本地 `.env.production.local` 中的 `ADMIN_PASSWORD`，与 `.env.local` 的开发密码不同。JWT 密钥不用于登录，不要公开此文件。
 - 已迁移 5 篇公开文章及 1 篇私密“关于本站”草稿。后续线上与本地数据库各自独立，常规代码部署不复制或覆盖文章。
 - Pages：`ai-native-notes-a4913994`；Worker：`ai-native-notes-server`；D1：`ai-native-notes`；R2：`ai-native-notes-images`；Queue：`ai-native-notes-tasks`。图片走博客同域 `/api/blob`。

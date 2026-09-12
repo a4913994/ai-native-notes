@@ -1,5 +1,13 @@
 # Implementation status
 
+## Custom domain and free email routing — 2026-09-12
+
+- User purchased aifield.cc. Bound apex and www to the existing Pages project; both domains and TLS certificates are active. Production public origin is now https://aifield.cc, and new image URLs use its same-origin `/api/blob` endpoint.
+- Published Worker version `f2bbb911-9ac4-4edf-827e-8bbb6ce6b7e8` and Pages deployment `e6ad60d8`. Scoped the generated RSS/sitemap cache to `cache/aifield.cc/` to avoid serving old-domain metadata. Existing articles were preserved.
+- Added 308 document redirects from the legacy Pages hostname and www, preserving paths and queries. Legacy API/image access and hashed assets remain accessible; preview deployments do not redirect. All 472 tests pass (including three new gateway regression tests); workspace and blog-script type checks and the client production build pass. Live Chrome confirmed the article, www redirect and legacy alias redirect from the user's network.
+- Backed up production D1 to ignored `backups/before-aifield-20260912.sql` before acceptance. New-domain API checks passed for login, secure session cookies, logout, draft/publish/edit, privacy after cache hits, anonymous edit denial, upload/public image access, pagination, all six original articles, RSS, sitemap and public routes. Temporary test article and image were removed.
+- Enabled free Cloudflare Email Routing with MX/SPF/DKIM records and configured contact@aifield.cc to the owner's confirmed, verified destination. Dashboard shows routing enabled, one active rule and one verified destination; public DNS records resolve. Catch-all stays disabled. End-to-end delivery to the mailbox still needs a test email from another address.
+
 ## Homepage-only utility controls — 2026-09-12
 
 - Search, interface language, theme and account are rendered only on the public homepage in a separate top-right row. Article, archive, subscription and other public pages retain navigation without empty utility columns. Admin controls remain available.

@@ -3,7 +3,7 @@ import { blogClient, checked } from './blog-api';
 const backup = process.argv[2];
 if (!backup || !(await Bun.file(backup).exists())) throw new Error('Pass the database backup path created before acceptance.');
 const {request,origin} = await blogClient('.env.production.local');
-if (!origin.endsWith('.pages.dev')) throw new Error('Expected the configured Pages production origin.');
+if (new URL(origin).protocol !== 'https:') throw new Error('Expected the configured HTTPS production origin.');
 const marker = `acceptance-${Date.now()}`;
 const ids: number[] = [];
 const anonymous = (path: string) => request(path, 'GET', undefined, false);
