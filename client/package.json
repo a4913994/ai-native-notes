@@ -15,6 +15,7 @@
     "test:coverage": "bun test --coverage --coverage-reporter=text --coverage-reporter=lcov"
   },
   "dependencies": {
+    "@fontsource/ia-writer-mono": "5.3.0",
     "@rin/api": "workspace:*",
     "@rin/config": "workspace:*",
     "@rin/ui": "workspace:*",

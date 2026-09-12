@@ -2,7 +2,8 @@
 
 ## Ready locally
 
-- Public frontend redesigned with a narrow reading column, monospace typography, colored link underlines, custom notebook SVG and light/dark palettes inspired by cassidoo.co. Existing Tailwind/components reused, no new dependencies.
+- Public frontend revised against measured cassidoo.co geometry: 632px text column, 32/24px regular heading/subtitle, 200px circular avatar, centered sticky nav, borderless compact posts and bottom tag index. iA Writer Mono 5.3.0 added as a pinned, locally bundled font; license shipped with assets. Search/language/account controls moved to footer.
+- Local `/?preview=1` offers five explicitly marked, clickable typography examples without modifying D1 or RSS. Verified sample prose is absent from production assets.
 - Homepage, feed rows, search/tag result rows and article reading styles unified; admin editor remains original. Empty home is intentional until real articles are published.
 
 - Upstream pinned: `308a542df6165bbf757fad111d7f8ab6296db771`; personal fork created at `a4913994/ai-native-notes`.

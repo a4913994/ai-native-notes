@@ -3,11 +3,13 @@ import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "wouter";
 import { useSiteConfig } from "../hooks/useSiteConfig";
 import { ProfileContext } from "../state/profile";
-import { ClientConfigContext } from "../state/config";
 import Footer from "./footer";
 import { ImageWithFallback } from "./image-with-fallback";
 import { HeaderActions } from "./site-header/primitives/action-buttons";
 import "./notebook.css";
+import "@fontsource/ia-writer-mono/latin-400.css";
+import "@fontsource/ia-writer-mono/latin-700.css";
+import "@fontsource/ia-writer-mono/latin-400-italic.css";
 
 export const NotebookContext = createContext(false);
 
@@ -15,7 +17,6 @@ export function NotebookShell({ children, tools }: { children: ReactNode; tools?
   const { t } = useTranslation();
   const site = useSiteConfig();
   const profile = useContext(ProfileContext);
-  const config = useContext(ClientConfigContext);
   const [location] = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [location]);
   const links = [
@@ -31,7 +32,7 @@ export function NotebookShell({ children, tools }: { children: ReactNode; tools?
         <div className="notebook-wrap">
           <header className="notebook-header">
             <div className="notebook-identity">
-              <div>
+              <div className="notebook-header-frame">
                 <Link href="/" className="notebook-name">{site.name}</Link>
                 <p className="notebook-subtitle">{t("notebook.subtitle")}</p>
               </div>
@@ -46,16 +47,21 @@ export function NotebookShell({ children, tools }: { children: ReactNode; tools?
                 </svg>}
               </Link>
             </div>
+          </header>
             <div className="notebook-nav-row">
               <nav className="notebook-nav" aria-label={t("notebook.navigation")}>
-                {links.map(([href, label]) => <Link key={href} href={href} aria-current={location === href ? "page" : undefined}>{label}</Link>)}
-                {config.getBoolean("rss") && <a href="/rss.xml">rss ↗</a>}
+                {links.slice(0,3).map(([href, label]) => <Link key={href} href={href} aria-current={location === href ? "page" : undefined}>{label}</Link>)}
+                <a href="https://github.com/a4913994" target="_blank" rel="noreferrer">github</a>
+                <Link href="/friends" aria-current={location === "/friends" ? "page" : undefined}>{t("notebook.friends")}</Link>
               </nav>
-              <div className="notebook-tools">{tools}<HeaderActions profile={profile} plain className="flex items-center gap-1" /></div>
             </div>
-          </header>
+          {tools && <div className="notebook-article-tools">{tools}</div>}
           <div id="notebook-content" className="notebook-content" tabIndex={-1}>{children}</div>
-          <div className="notebook-footer"><p>{t("notebook.footer")}</p><Footer /></div>
+          <div className="notebook-footer">
+            <p>© {new Date().getFullYear()} {site.name}. <a className="notebook-link" href="https://github.com/a4913994/ai-native-notes">{t("notebook.source")}</a>! &lt;3</p>
+            <div className="notebook-tools"><HeaderActions profile={profile} plain className="flex items-center gap-1" /></div>
+            <Footer />
+          </div>
         </div>
       </div>
     </NotebookContext.Provider>

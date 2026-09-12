@@ -90,6 +90,7 @@ const FEED_CARD_STYLES: Record<
 };
 
 export type FeedCardProps = {
+    href?: string;
     id: string;
     avatar?: string;
     draft?: number;
@@ -104,7 +105,7 @@ export type FeedCardProps = {
     variant?: FeedCardVariant;
 };
 
-export function FeedCard({ id, title, avatar, draft, listed, top, summary, hashtags, createdAt, updatedAt, preview = false, variant }: FeedCardProps) {
+export function FeedCard({ id, href, title, avatar, draft, listed, top, summary, hashtags, createdAt, updatedAt, preview = false, variant }: FeedCardProps) {
     const { t, i18n } = useTranslation();
     const notebook = useContext(NotebookContext);
     const siteConfig = useSiteConfig();
@@ -115,7 +116,7 @@ export function FeedCard({ id, title, avatar, draft, listed, top, summary, hasht
         const date = new Date(createdAt);
         return <article className="notebook-post">
             <div className="notebook-post-heading">
-                <h2><Link href={`/feed/${id}`}>{title || t("notebook.untitled")}</Link></h2>
+                <h2><Link href={href ?? `/feed/${id}`}>{title || t("notebook.untitled")}</Link></h2>
                 {!Number.isNaN(date.getTime()) && <time dateTime={date.toISOString()}>{date.toLocaleDateString(i18n.language, { year: "numeric", month: "short", day: "numeric" })}</time>}
             </div>
             <div className="notebook-post-flags">
