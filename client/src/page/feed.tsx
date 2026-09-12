@@ -263,4 +263,3 @@ export function FeedPage({ id }: { id: string }) {
     </Waiting>
   );
 }
-

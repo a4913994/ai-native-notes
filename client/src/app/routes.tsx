@@ -197,4 +197,3 @@ function AdminRoute({
     </Route>
   );
 }
-
