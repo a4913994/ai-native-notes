@@ -12,7 +12,15 @@ describe('RSSService', () => {
     let app: Hono<{ Bindings: Env; Variables: Variables }>;
 
     beforeEach(async () => {
-        const ctx = await setupTestApp(RSSService);
+        // Feed generation inspects favicon storage even on a cache miss.
+        // Keep these tests local rather than contacting the fixture's fake S3 endpoint.
+        const ctx = await setupTestApp(RSSService, createMockEnv({
+            R2_BUCKET: {
+                get: async () => null,
+                head: async () => null,
+                put: async () => null,
+            } as unknown as R2Bucket,
+        }));
         db = ctx.db;
         sqlite = ctx.sqlite;
         env = ctx.env;

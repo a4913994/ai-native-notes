@@ -2,7 +2,8 @@ import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
 import { timeago } from "../utils/timeago";
 import { HashTag } from "./hashtag";
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
+import { NotebookContext } from "./notebook-shell";
 import { drawBlurhashToCanvas } from "../utils/blurhash";
 import { parseImageUrlMetadata } from "../utils/image-upload";
 import { useImageLoadState } from "../utils/use-image-load-state";
@@ -104,11 +105,28 @@ export type FeedCardProps = {
 };
 
 export function FeedCard({ id, title, avatar, draft, listed, top, summary, hashtags, createdAt, updatedAt, preview = false, variant }: FeedCardProps) {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const notebook = useContext(NotebookContext);
     const siteConfig = useSiteConfig();
     const safeHashtags = Array.isArray(hashtags) ? hashtags : [];
     const activeVariant = normalizeFeedCardVariant(variant ?? siteConfig.feedCardVariant);
     const styles = FEED_CARD_STYLES[activeVariant];
+    if (notebook && !preview) {
+        const date = new Date(createdAt);
+        return <article className="notebook-post">
+            <div className="notebook-post-heading">
+                <h2><Link href={`/feed/${id}`}>{title || t("notebook.untitled")}</Link></h2>
+                {!Number.isNaN(date.getTime()) && <time dateTime={date.toISOString()}>{date.toLocaleDateString(i18n.language, { year: "numeric", month: "short", day: "numeric" })}</time>}
+            </div>
+            <div className="notebook-post-flags">
+                {draft === 1 && <span>{t("draft")}</span>}
+                {listed === 0 && <span>{t("unlisted")}</span>}
+                {top === 1 && <span>{t("article.top.title")}</span>}
+            </div>
+            {summary && <p className="line-clamp-3">{summary}</p>}
+            <div className="notebook-tags">{safeHashtags.map(({ name }) => <Link key={name} href={`/hashtag/${encodeURIComponent(name)}`}>#{name}</Link>)}</div>
+        </article>;
+    }
     const body = (
         <div className={styles.card}>
             {avatar ? (

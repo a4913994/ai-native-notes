@@ -1,5 +1,7 @@
 import type { Subprocess } from "bun";
 import { parseArgs } from "node:util";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { logger } from "../lib/logger";
 import { checkPort } from "../lib/network";
 import { getWranglerEnv } from "../lib/wrangler";
@@ -20,7 +22,7 @@ function registerSignalHandlers(processes: Subprocess[]) {
 }
 
 function createViteArgs(port: number) {
-  return [bunExec, "x", "vite", "--host", "0.0.0.0", "--port", String(port), "--strictPort"];
+  return [bunExec, "x", "vite", "--host", "127.0.0.1", "--port", String(port), "--strictPort"];
 }
 
 function createWranglerArgs(port: number) {
@@ -30,7 +32,7 @@ function createWranglerArgs(port: number) {
 function createViteEnv(serverPort?: number) {
   return {
     ...process.env,
-    RIN_VITE_CACHE_DIR: `/tmp/rin-vite-cache-${serverPort ?? "client"}`,
+    RIN_VITE_CACHE_DIR: join(tmpdir(), `rin-vite-cache-${serverPort ?? "client"}`),
     ...(serverPort ? { RIN_SERVER_PORT: String(serverPort) } : {}),
   };
 }
@@ -60,7 +62,7 @@ export async function runDevCommand(args: string[]) {
 
   if (!values.client) {
     logger.info("Checking database migrations...");
-    await runLocalDbMigrate();
+    await runLocalDbMigrate("DB");
     logger.success("Database migrations completed");
   }
 

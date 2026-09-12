@@ -42,7 +42,10 @@ export class Cache {
         });
     }
     public useCache<T>(key: Keys, initialValue: T) {
-        const [value, setValue] = React.useState<T>(this.get(key) as T ?? initialValue);
+        const cached = this.get(key);
+        const restored = cached === null ? initialValue
+            : typeof initialValue === "boolean" ? (cached === "true") as T : cached as T;
+        const [value, setValue] = React.useState<T>(restored);
         const setCache = (value: T) => {
             this.set(key, value as string);
             setValue(value);

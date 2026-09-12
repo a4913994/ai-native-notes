@@ -3,13 +3,9 @@ import { useContext } from "react";
 import type { DefaultParams, PathPattern } from "wouter";
 import { Route, Switch } from "wouter";
 import { AdminLayout } from "../components/admin-layout";
-import Footer from "../components/footer";
-import { Header } from "../components/header";
-import { Padding } from "../components/padding";
-import { getHeaderLayoutDefinition } from "../components/site-header/layout-registry";
+import { NotebookShell } from "../components/notebook-shell";
 import { Tips, TipsPage } from "../components/tips";
 import useTableOfContents from "../hooks/useTableOfContents";
-import { useSiteConfig } from "../hooks/useSiteConfig";
 import { CallbackPage } from "../page/callback";
 import { CompatTasksPage } from "../page/compat-tasks";
 import { ErrorPage } from "../page/error";
@@ -137,17 +133,14 @@ function AppRoute({
   path,
   children,
   headerComponent,
-  paddingClassName,
   requirePermission,
 }: {
   path?: PathPattern;
   children: ReactNode | ((params: DefaultParams) => ReactNode);
   headerComponent?: ReactNode;
-  paddingClassName?: string;
   requirePermission?: boolean;
 }) {
   const profile = useContext(ProfileContext);
-  const siteConfig = useSiteConfig();
   const { t } = useTranslation();
 
   const content =
@@ -157,14 +150,7 @@ function AppRoute({
     <Route path={path}>
       {(params) => {
         const resolvedContent = typeof content === "function" ? content(params) : content;
-        const layoutDefinition = getHeaderLayoutDefinition(siteConfig.headerLayout);
-
-        return layoutDefinition.renderRouteShell({
-          header: <Header>{headerComponent}</Header>,
-          content: <Padding className={paddingClassName}>{resolvedContent}</Padding>,
-          footer: <Footer />,
-          paddingClassName,
-        });
+        return <NotebookShell tools={headerComponent}>{resolvedContent}</NotebookShell>;
       }}
     </Route>
   );
@@ -209,7 +195,7 @@ function TocRoute({
   const { TOC, cleanup } = useTableOfContents(".toc-content");
 
   return (
-    <AppRoute path={path} headerComponent={TOCHeader({ TOC })} paddingClassName="mx-4">
+    <AppRoute path={path} headerComponent={<TOCHeader TOC={TOC} />}>
       {(params) => children(params, TOC, cleanup)}
     </AppRoute>
   );

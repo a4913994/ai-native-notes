@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import {
   fixTopField,
   getMigrationFileVersion,
@@ -32,7 +32,7 @@ export async function runLocalDbMigrate(dbName = "rin") {
   for (const file of sqlFiles) {
     const filePath = path.join(sqlDir, file);
     try {
-      execSync(`bunx wrangler d1 execute ${dbName} --local --file "${filePath}"`, { stdio: "inherit" });
+      execFileSync(process.execPath, ["x", "wrangler", "d1", "execute", dbName, "--local", "--file", filePath], { stdio: "inherit" });
       console.log(`Executed ${file}`);
     } catch (error) {
       console.error(`Failed to execute ${file}: ${error}`);

@@ -1,0 +1,14 @@
+name: AI Native Notes
+type: personal-blog
+repository: https://github.com/a4913994/ai-native-notes
+upstream: https://github.com/openRin/Rin
+upstream_commit: 308a542df6165bbf757fad111d7f8ab6296db771
+bun: 1.3.13
+local_url: http://localhost:11498
+production_url: null
+languages: [zh-CN, en]
+authentication: admin-password
+hosting: cloudflare-pages-workers-d1-r2
+content_status: about-draft-only
+public_design: notebook-single-column
+design_reference: https://cassidoo.co/

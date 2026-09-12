@@ -1,4 +1,25 @@
 {
+  "notebook": {
+    "home": "home",
+    "archive": "archive",
+    "topics": "topics",
+    "friends": "friends",
+    "skip": "Skip to content",
+    "navigation": "Main navigation",
+    "subtitle": "Learning, building & taking notes.",
+    "hello": "Hello, fellow curious human.",
+    "intro": "A small corner of the internet for things I learn, things I build, and ideas worth keeping. Written in Chinese and English.",
+    "recent": "Recently in the notebook",
+    "small_steps": "one idea at a time",
+    "footer": "Stay curious. Keep making things.",
+    "empty_title": "A fresh page, a place to begin.",
+    "empty_body": "The notebook is open. New notes will appear here once published.",
+    "first_note": "Write the first note",
+    "loading": "Opening the notebook…",
+    "load_error": "The notes couldn't be loaded. Please refresh and try again.",
+    "untitled": "Untitled note",
+    "pagination": "Article pages"
+  },
   "about": {
     "notfound": "Set the article alias to `about` to create an about page",
     "title": "About"

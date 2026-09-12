@@ -1,4 +1,25 @@
 {
+  "notebook": {
+    "home": "ホーム",
+    "archive": "アーカイブ",
+    "topics": "タグ",
+    "friends": "リンク",
+    "skip": "本文へ移動",
+    "navigation": "メインナビゲーション",
+    "subtitle": "Learning, building & taking notes.",
+    "hello": "こんにちは、ノートへようこそ。",
+    "intro": "学んだこと、作ったもの、残しておきたいアイデアを、中国語と英語で少しずつ記録しています。",
+    "recent": "最近のノート",
+    "small_steps": "one idea at a time",
+    "footer": "好奇心を忘れず、作り続けよう。",
+    "empty_title": "新しいページ、ここから始まる。",
+    "empty_body": "公開された記事がここに表示されます。",
+    "first_note": "最初のノートを書く",
+    "loading": "ノートを開いています…",
+    "load_error": "ノートを読み込めませんでした。再読み込みしてください。",
+    "untitled": "無題のノート",
+    "pagination": "記事のページ"
+  },
   "about": {
     "notfound": "About ページを作成するには、記事のエイリアスを about に設定します",
     "title": "概要"

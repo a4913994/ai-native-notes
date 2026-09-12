@@ -19,11 +19,13 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
-      // Only open visualizer in build mode
-      visualizer({ open: !isDev })
+      visualizer({ open: false })
     ],
     server: {
       proxy: {
+        "/sitemap.xml": { target: serverTarget, changeOrigin: false },
+        "/robots.txt": { target: serverTarget, changeOrigin: false },
+        "/favicon": { target: serverTarget, changeOrigin: false },
         "/api": {
           target: serverTarget,
           changeOrigin: false,

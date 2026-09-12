@@ -185,11 +185,10 @@ export async function runCloudflareDeploy(target: "all" | "server" | "client" = 
     await buildClient();
   }
 
-  const serverDistIndex = Bun.file("./dist/server/_worker.js");
-  const hasServerBuild = await serverDistIndex.exists();
-  const serverMain = hasServerBuild ? "dist/server/_worker.js" : "server/src/_worker.ts";
+  // Always bundle current sources; a local dry-run artifact may be stale.
+  const serverMain = "server/src/_worker.ts";
 
-  Bun.write(
+  await Bun.write(
     "wrangler.toml",
     stripIndent(`
       #:schema node_modules/wrangler/config-schema.json

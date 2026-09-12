@@ -1,5 +1,6 @@
 import type { AdjacentFeed, AdjacentFeedResponse } from "@rin/api";
-import {useEffect, useState} from "react";
+import {useContext, useEffect, useState} from "react";
+import { NotebookContext } from "./notebook-shell";
 import { client } from "../app/runtime";
 import {timeago} from "../utils/timeago.ts";
 import {Link} from "wouter";
@@ -7,6 +8,8 @@ import {useTranslation} from "react-i18next";
 
 export function AdjacentSection({id, setError}: { id: string, setError: (error: string) => void }) {
     const [adjacentFeeds, setAdjacentFeeds] = useState<AdjacentFeedResponse>();
+    const notebook = useContext(NotebookContext);
+    const { t } = useTranslation();
 
     useEffect(() => {
         client.feed
@@ -19,6 +22,10 @@ export function AdjacentSection({id, setError}: { id: string, setError: (error: 
                 }
             });
     }, [id, setError]);
+    if (notebook) return <nav className="notebook-adjacent" aria-label={t("notebook.pagination")}>
+        {adjacentFeeds?.previousFeed && <Link className="notebook-link" href={`/feed/${adjacentFeeds.previousFeed.id}`}><span>← {t("previous")}</span>{adjacentFeeds.previousFeed.title}</Link>}
+        {adjacentFeeds?.nextFeed && <Link className="notebook-link text-right" href={`/feed/${adjacentFeeds.nextFeed.id}`}><span>{t("next")} →</span>{adjacentFeeds.nextFeed.title}</Link>}
+    </nav>;
     return (
         <div className="rounded-2xl bg-w m-2 grid grid-cols-1 sm:grid-cols-2">
             <AdjacentCard data={adjacentFeeds?.previousFeed} type="previous"/>

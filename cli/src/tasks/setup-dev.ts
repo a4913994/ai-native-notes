@@ -16,13 +16,12 @@ export async function runSetupDev() {
   }
 
   const env = parseEnv(fs.readFileSync(envFile, "utf-8"));
-  const baseRequiredVars = [
-    "NAME",
-    "AVATAR",
-    "RIN_GITHUB_CLIENT_ID",
-    "RIN_GITHUB_CLIENT_SECRET",
-    "JWT_SECRET",
-  ];
+  const baseRequiredVars = ["JWT_SECRET"];
+  const hasPasswordLogin = Boolean(env.ADMIN_USERNAME && env.ADMIN_PASSWORD);
+  const hasGithubLogin = Boolean(env.RIN_GITHUB_CLIENT_ID && env.RIN_GITHUB_CLIENT_SECRET);
+  if (!hasPasswordLogin && !hasGithubLogin) {
+    throw new Error("Configure ADMIN_USERNAME and ADMIN_PASSWORD, or a complete GitHub OAuth pair.");
+  }
   const storageRequiredVars = env.R2_BUCKET_NAME
     ? []
     : ["S3_ENDPOINT", "S3_BUCKET", "S3_ACCESS_KEY_ID", "S3_SECRET_ACCESS_KEY"];
@@ -54,16 +53,20 @@ crons = ["*/20 * * * *"]
 S3_FOLDER = "${env.S3_FOLDER || "images/"}"
 S3_CACHE_FOLDER = "${env.S3_CACHE_FOLDER || "cache/"}"
 S3_REGION = "${env.S3_REGION || "auto"}"
-S3_ENDPOINT = "${env.S3_ENDPOINT}"
+S3_ENDPOINT = "${env.S3_ENDPOINT || ""}"
 S3_ACCESS_HOST = "${env.S3_ACCESS_HOST || ""}"
-S3_BUCKET = "${env.S3_BUCKET}"
+S3_BUCKET = "${env.S3_BUCKET || ""}"
 S3_FORCE_PATH_STYLE = "${env.S3_FORCE_PATH_STYLE || "false"}"
 WEBHOOK_URL = "${env.WEBHOOK_URL || ""}"
 RSS_TITLE = "${env.RSS_TITLE || "Rin Development"}"
 RSS_DESCRIPTION = "${env.RSS_DESCRIPTION || "Development Environment"}"
 CACHE_STORAGE_MODE = "${env.CACHE_STORAGE_MODE || "s3"}"
-ADMIN_USERNAME = "${env.ADMIN_USERNAME}"
-ADMIN_PASSWORD = "${env.ADMIN_PASSWORD}"
+NAME = ${JSON.stringify(env.NAME || "Rin")}
+DESCRIPTION = ${JSON.stringify(env.DESCRIPTION || "")}
+AVATAR = ${JSON.stringify(env.AVATAR || "")}
+PAGE_SIZE = "${env.PAGE_SIZE || "5"}"
+RSS_ENABLE = "${env.RSS_ENABLE || "false"}"
+FRONTEND_URL = ${JSON.stringify(env.FRONTEND_URL || "")}
 
 [[d1_databases]]
 binding = "DB"
@@ -91,22 +94,20 @@ preview_bucket_name = "${env.R2_BUCKET_NAME}"`
   fs.writeFileSync(path.join(rootDir, "wrangler.toml"), wranglerContent);
   fs.writeFileSync(
     path.join(rootDir, "client", ".env"),
-    `NAME=${env.NAME}
+    `NAME=${env.NAME || "Rin"}
 DESCRIPTION=${env.DESCRIPTION || ""}
-AVATAR=${env.AVATAR}
+AVATAR=${env.AVATAR || ""}
 PAGE_SIZE=${env.PAGE_SIZE || "5"}
 RSS_ENABLE=${env.RSS_ENABLE || "false"}
 `,
   );
   fs.writeFileSync(
     path.join(rootDir, ".dev.vars"),
-    `RIN_GITHUB_CLIENT_ID=${env.RIN_GITHUB_CLIENT_ID}
-RIN_GITHUB_CLIENT_SECRET=${env.RIN_GITHUB_CLIENT_SECRET}
-JWT_SECRET=${env.JWT_SECRET}
-${env.R2_BUCKET_NAME ? "" : `S3_ACCESS_KEY_ID=${env.S3_ACCESS_KEY_ID}
-S3_SECRET_ACCESS_KEY=${env.S3_SECRET_ACCESS_KEY}
-`}
-`,
+    ["ADMIN_USERNAME", "ADMIN_PASSWORD", "RIN_GITHUB_CLIENT_ID", "RIN_GITHUB_CLIENT_SECRET",
+      "JWT_SECRET", "S3_ACCESS_KEY_ID", "S3_SECRET_ACCESS_KEY"]
+      .filter((key) => env[key])
+      .map((key) => `${key}=${JSON.stringify(env[key])}`)
+      .join("\n") + "\n",
   );
 
   console.log("✅ 已生成 wrangler.toml");

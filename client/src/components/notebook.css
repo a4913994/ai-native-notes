@@ -1,0 +1,112 @@
+.notebook-shell {
+  --note-paper: #faf9f6;
+  --note-ink: #292a2d;
+  --note-muted: #666761;
+  --note-line: #deddd5;
+  --note-yellow: #b98917;
+  --note-pink: #c35479;
+  --note-blue: #36849d;
+  --note-green: #538255;
+  --note-badge: #f1e8cf;
+  min-height: 100vh;
+  background: var(--note-paper);
+  color: var(--note-ink);
+  font: 16px/1.8 "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", "Microsoft YaHei", monospace;
+  -webkit-font-smoothing: antialiased;
+}
+[data-color-mode="dark"] .notebook-shell {
+  --note-paper: #242424;
+  --note-ink: #eeeae3;
+  --note-muted: #adaaa3;
+  --note-line: #45443f;
+  --note-yellow: #e8c76a;
+  --note-pink: #e593b0;
+  --note-blue: #89c7db;
+  --note-green: #a4c59b;
+  --note-badge: #3c3b32;
+}
+.notebook-wrap { max-width: 740px; margin: auto; padding: 64px 32px 24px; }
+.notebook-identity { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.notebook-name { font-size: clamp(24px, 4vw, 32px); letter-spacing: -1.4px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.notebook-name:hover { color: var(--note-yellow); }
+.notebook-subtitle { color: var(--note-muted); margin-top: 12px; font-size: 15px; }
+.notebook-emblem { width: 126px; flex-shrink: 0; transform: rotate(-7deg); transition: transform .2s; }
+.notebook-emblem:hover { transform: rotate(3deg); }
+.notebook-nav-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 32px 0 44px; padding-bottom: 20px; border-bottom: 1px dashed var(--note-line); }
+.notebook-nav { display: flex; gap: 23px; flex-wrap: wrap; font-size: 14px; }
+.notebook-nav a, .notebook-link, .notebook-post h2 a, .notebook-tags a { text-decoration: underline; text-decoration-color: var(--note-yellow); text-underline-offset: 5px; text-decoration-thickness: 2px; transition: color .15s; }
+.notebook-nav a:nth-child(2), .notebook-tags a:nth-child(3n+2) { text-decoration-color: var(--note-pink); }
+.notebook-nav a:nth-child(3), .notebook-tags a:nth-child(3n) { text-decoration-color: var(--note-blue); }
+.notebook-nav a:nth-child(4) { text-decoration-color: var(--note-green); }
+.notebook-nav a:hover, .notebook-link:hover, .notebook-post h2 a:hover, .notebook-tags a:hover { color: var(--note-yellow); }
+.notebook-nav a[aria-current="page"] { text-decoration-thickness: 4px; }
+.notebook-tools { display: flex; align-items: center; flex-shrink: 0; }
+.notebook-tools button { min-width: 32px; min-height: 36px; }
+.notebook-shell :focus-visible { outline: 2px solid var(--note-blue); outline-offset: 5px; }
+.notebook-skip { position: absolute; left: 16px; top: -100px; padding: 8px; background: var(--note-paper); z-index: 60; }
+.notebook-skip:focus { top: 12px; }
+.notebook-intro { margin-bottom: 50px; }
+.notebook-intro h1 { font-size: 21px; font-weight: 600; margin-bottom: 18px; }
+.notebook-intro p { margin: 14px 0; }
+.notebook-intro .notebook-english { color: var(--note-muted); font-size: 14px; line-height: 1.8; }
+.notebook-tags { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; }
+.notebook-intro .notebook-tags { margin-top: 22px; }
+.notebook-section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
+.notebook-section-heading h2 { font-size: 18px; font-weight: 600; }
+.notebook-section-heading span { color: var(--note-muted); font-size: 12px; }
+.notebook-manage { display: flex; flex-wrap: wrap; gap: 18px; margin: -12px 0 24px; font-size: 13px; }
+.notebook-post { padding-bottom: 30px; margin-bottom: 24px; border-bottom: 1px dashed var(--note-line); }
+.notebook-post-heading { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 14px; row-gap: 5px; }
+.notebook-post h2 { font-size: 20px; font-weight: 500; line-height: 1.7; overflow-wrap: anywhere; }
+.notebook-post time { color: var(--note-muted); font-size: 12px; white-space: nowrap; }
+.notebook-post p { margin: 14px 0; font-size: 15px; line-height: 1.85; overflow-wrap: anywhere; }
+.notebook-post:nth-child(3n+2) h2 a { text-decoration-color: var(--note-pink); }
+.notebook-post:nth-child(3n) h2 a { text-decoration-color: var(--note-blue); }
+.notebook-post-flags { color: var(--note-muted); font-size: 12px; display: flex; gap: 12px; }
+.notebook-empty { padding: 25px 0 35px; }
+.notebook-empty-symbol { color: var(--note-green); font-size: 24px; margin-bottom: 16px; }
+.notebook-empty h3 { margin-bottom: 10px; font-size: 17px; }
+.notebook-empty p { color: var(--note-muted); font-size: 14px; margin-bottom: 20px; }
+.notebook-pagination { display: flex; justify-content: space-between; margin: 28px 0; font-size: 14px; }
+.notebook-footer { border-top: 1px dashed var(--note-line); padding-top: 26px; margin-top: 50px; color: var(--note-muted); font-size: 12px; }
+.notebook-footer > p { margin-bottom: 14px; }
+.notebook-footer footer > div { align-items: flex-start; }
+.notebook-footer footer p { font-size: 12px; }
+/* Keep the original secondary-page widgets, within the same reading column. */
+.notebook-content .wauto { width: 100%; transition: none; }
+.notebook-content [class*="columns-"] { columns: 1; }
+.notebook-content .text-4xl { font-size: 25px; }
+.notebook-content .bg-w { background: transparent; }
+.notebook-content .t-primary { color: var(--note-ink); }
+.notebook-shell .notebook-article-layout { display: block; }
+.notebook-article-layout > .notebook-article-spacer, .notebook-article-layout > .notebook-article-toc { display: none; }
+.notebook-shell .notebook-article { margin: 0; padding: 0; border-radius: 0; }
+.notebook-article h1 { font-size: clamp(26px, 4vw, 34px); line-height: 1.5; font-weight: 600; margin: 14px 0 28px; word-break: normal; overflow-wrap: anywhere; }
+.notebook-content .toc-content { background: transparent; color: var(--note-ink); font-family: inherit; font-size: 16px; line-height: 1.95; }
+.notebook-content .toc-content h2 { margin-top: 2em; font-size: 24px; border-color: var(--note-line); }
+.notebook-content .toc-content a { color: var(--note-ink); text-decoration: underline; text-decoration-color: var(--note-blue); text-underline-offset: 4px; }
+.notebook-content .toc-content pre { font-size: 13px; max-width: 100%; overflow-x: auto; }
+.notebook-content .notebook-adjacent { margin: 36px 0; display: flex; justify-content: space-between; gap: 24px; }
+.notebook-content .notebook-adjacent a { flex: 1; font-size: 14px; overflow-wrap: anywhere; }
+.notebook-content .notebook-adjacent span { display: block; color: var(--note-muted); font-size: 12px; }
+.notebook-content .notebook-comments { margin: 36px 0 0; border-top: 1px dashed var(--note-line); padding-top: 28px; }
+.notebook-content .notebook-comment-input { padding: 0; border-radius: 0; }
+.notebook-content .notebook-comment-input textarea { border: 1px solid var(--note-line); padding: 12px; margin-top: 4px; }
+.notebook-content main { min-width: 0; }
+@media (max-width: 600px) {
+  .notebook-wrap { padding: 32px 24px 20px; }
+  .notebook-identity { gap: 12px; }
+  .notebook-emblem { width: 82px; }
+  .notebook-name { font-size: 25px; }
+  .notebook-subtitle { font-size: 12px; margin-top: 8px; }
+  .notebook-nav-row { flex-wrap: wrap; margin: 25px 0 30px; gap: 14px; }
+  .notebook-nav { gap: 20px; font-size: 13px; }
+  .notebook-tools { width: 100%; justify-content: flex-end; }
+  .notebook-intro { margin-bottom: 36px; }
+  .notebook-intro h1 { font-size: 19px; }
+  .notebook-shell { font-size: 15px; }
+  .notebook-post h2 { font-size: 18px; }
+  .notebook-section-heading span { display: none; }
+  .notebook-footer { margin-top: 32px; }
+}
+@media (prefers-reduced-motion: reduce) { .notebook-shell *, .notebook-shell *::before { transition: none !important; animation: none !important; } }

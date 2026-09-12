@@ -165,7 +165,7 @@ export function FeedPage({ id, TOC, clean }: { id: string, TOC: () => JSX.Elemen
           />
         </Helmet>
       )}
-      <div className="w-full flex flex-row justify-center ani-show">
+      <div className="notebook-article-layout w-full flex flex-row justify-center ani-show">
         {error && (
           <>
             <div className="flex flex-col wauto rounded-2xl bg-w m-2 p-6 items-center justify-center space-y-2">
@@ -182,13 +182,13 @@ export function FeedPage({ id, TOC, clean }: { id: string, TOC: () => JSX.Elemen
         )}
         {feed && !error && (
           <>
-            <div className="xl:w-64" />
+            <div className="notebook-article-spacer xl:w-64" />
             <main className="wauto">
               <article
-                className="rounded-2xl bg-w m-2 px-6 py-4"
+                className="notebook-article rounded-2xl bg-w m-2 px-6 py-4"
                 aria-label={feed.title ?? "Unnamed"}
               >
-                <div className="flex justify-between">
+                  <div className="flex flex-col justify-between gap-2 sm:flex-row">
                   <div>
                     <div className="mt-1 mb-1 flex gap-1">
                       <p
@@ -309,7 +309,7 @@ export function FeedPage({ id, TOC, clean }: { id: string, TOC: () => JSX.Elemen
               {feed && <Comments id={`${feed.id}`} />}
               <div className="h-16" />
             </main>
-            <div className="w-80 hidden lg:block relative">
+            <div className="notebook-article-toc w-80 hidden lg:block relative">
               <div
                 className={`start-0 end-0 top-[5.5rem] sticky`}
               >
@@ -329,8 +329,9 @@ export function TOCHeader({ TOC }: { TOC: () => JSX.Element }) {
   const [isOpened, setIsOpened] = useState(false);
 
   return (
-    <div className="shrink-0 lg:hidden">
+    <div className="shrink-0">
       <button
+        aria-label="Table of contents"
         onClick={() => setIsOpened(true)}
         className="w-10 h-10 rounded-full flex flex-row items-center justify-center"
       >
@@ -423,7 +424,7 @@ function CommentInput({
     }
   }
   return (
-    <div className="w-full rounded-2xl bg-w t-primary p-6 items-end flex flex-col">
+    <div className="notebook-comment-input w-full rounded-2xl bg-w t-primary p-6 items-end flex flex-col">
       <div className="flex flex-col w-full items-start mb-4">
         <label htmlFor="comment">{t("comment.title")}</label>
       </div>
@@ -534,7 +535,7 @@ function Comments({ id }: { id: string }) {
   return (
     <>
       {config.getBoolean('comment.enabled') &&
-        <div className="m-2 flex flex-col justify-center items-center">
+        <div className="notebook-comments m-2 flex flex-col justify-center items-center">
           <CommentInput id={id} onRefresh={loadComments} />
           {error && (
             <>

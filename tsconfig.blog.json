@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": { "noEmit": true, "types": ["bun"], "esModuleInterop": true },
+  "include": ["scripts/blog-*.ts", "deploy/*.ts"]
+}

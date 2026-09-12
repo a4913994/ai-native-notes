@@ -125,8 +125,8 @@ export function WritingPage({ id }: { id?: number }) {
   const [summary, setSummary] = cache.useCache("summary", "");
   const [tags, setTags] = cache.useCache("tags", "");
   const [alias, setAlias] = cache.useCache("alias", "");
-  const [draft, setDraft] = useState(false);
-  const [listed, setListed] = useState(true);
+  const [draft, setDraft] = cache.useCache("draft", false);
+  const [listed, setListed] = cache.useCache("listed", true);
   const [content, setContent] = cache.useCache("content", "");
   const [createdAt, setCreatedAt] = useState<Date | undefined>(new Date());
   const [publishing, setPublishing] = useState(false)
@@ -194,8 +194,8 @@ export function WritingPage({ id }: { id?: number }) {
             if (alias == "" && (data as any).alias) setAlias((data as any).alias);
             if (content == "") setContent(data.content);
             if (summary == "") setSummary((data as any).summary || "");
-            setListed((data as any).listed === 1);
-            setDraft((data as any).draft === 1);
+            if (cache.get("listed") === null) setListed((data as any).listed === 1);
+            if (cache.get("draft") === null) setDraft((data as any).draft === 1);
             setCreatedAt(new Date(data.createdAt));
           }
         });
@@ -296,7 +296,7 @@ export function WritingPage({ id }: { id?: number }) {
               <Checkbox
                 id="draft"
                 value={draft}
-                setValue={setDraft}
+                setValue={(next) => setDraft(typeof next === "function" ? next(draft) : next)}
                 placeholder={t('draft')}
               />
             </FlatMetaRow>
@@ -308,7 +308,7 @@ export function WritingPage({ id }: { id?: number }) {
               <Checkbox
                 id="listed"
                 value={listed}
-                setValue={setListed}
+                setValue={(next) => setListed(typeof next === "function" ? next(listed) : next)}
                 placeholder={t('listed')}
               />
             </FlatMetaRow>

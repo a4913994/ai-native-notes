@@ -36,6 +36,11 @@ dist-ssr
 *.sln
 *.sw?
 /.dev.vars
+/.wrangler-secrets.json
+/backups/
+/artifacts/
+/.env.production.local
+/wrangler.pages.toml
 
 # Bun
 .bun/*

@@ -1,128 +1,83 @@
-import { useContext, useEffect, useRef, useState } from "react"
-import { Helmet } from 'react-helmet'
-import { Link, useSearch } from "wouter"
-import { FeedCard } from "../components/feed_card"
-import { Waiting } from "../components/loading"
-import { client } from "../app/runtime"
-import { ProfileContext } from "../state/profile"
-
-import { useSiteConfig } from "../hooks/useSiteConfig";
-import { siteName } from "../utils/constants"
-import { tryInt } from "../utils/int"
+import { useContext, useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
 import { useTranslation } from "react-i18next";
+import { Link, useSearch } from "wouter";
+import { client } from "../app/runtime";
+import { FeedCard, type FeedCardProps } from "../components/feed_card";
+import { useSiteConfig } from "../hooks/useSiteConfig";
+import { ProfileContext } from "../state/profile";
+import { tryInt } from "../utils/int";
 
-type FeedsData = {
-    size: number,
-    data: any[],
-    hasNext: boolean
-}
-
-type FeedType = 'draft' | 'unlisted' | 'normal'
-
-type FeedsMap = {
-    [key in FeedType]: FeedsData
-}
+type FeedType = "normal" | "draft" | "unlisted";
+type FeedList = { size: number; data: FeedCardProps[]; hasNext: boolean };
+const emptyList: FeedList = { size: 0, data: [], hasNext: false };
 
 export function FeedsPage() {
-    const { t } = useTranslation()
-    const siteConfig = useSiteConfig();
-    const query = new URLSearchParams(useSearch());
-    const profile = useContext(ProfileContext);
-    const [listState, _setListState] = useState<FeedType>(query.get("type") as FeedType || 'normal')
-    const [status, setStatus] = useState<'loading' | 'idle'>('idle')
-    const [feeds, setFeeds] = useState<FeedsMap>({
-        draft: { size: 0, data: [], hasNext: false },
-        unlisted: { size: 0, data: [], hasNext: false },
-        normal: { size: 0, data: [], hasNext: false }
-    })
-    const page = tryInt(1, query.get("page"))
-    const limit = tryInt(siteConfig.pageSize, query.get("limit"))
-    const feedListClass = siteConfig.feedLayout === "masonry" ? "wauto columns-1 gap-5 ani-show md:columns-2" : "wauto flex flex-col ani-show";
-    const currentFeeds = feeds[listState] ?? { size: 0, data: [], hasNext: false };
-    const currentFeedData = Array.isArray(currentFeeds.data) ? currentFeeds.data : [];
-    const ref = useRef("")
-    function fetchFeeds(type: FeedType) {
-        client.feed.list({
-            page: page,
-            limit: limit,
-            type: type
-        }).then(({ data }) => {
-            if (data) {
-                setFeeds({
-                    ...feeds,
-                    [type]: data
-                })
-                setStatus('idle')
-            }
-        })
-    }
-    useEffect(() => {
-        const key = `${query.get("page")} ${query.get("type")} ${limit}`
-        if (ref.current == key) return
-        const type = query.get("type") as FeedType || 'normal'
-        if (type !== listState) {
-            _setListState(type)
-        }
-        setStatus('loading')
-        fetchFeeds(type)
-        ref.current = key
-    }, [limit, query.get("page"), query.get("type")])
-    return (
-        <>
-            <Helmet>
-                <title>{`${t('article.title')} - ${siteConfig.name}`}</title>
-                <meta property="og:site_name" content={siteName} />
-                <meta property="og:title" content={t('article.title')} />
-                <meta property="og:image" content={siteConfig.avatar} />
-                <meta property="og:type" content="article" />
-                <meta property="og:url" content={document.URL} />
-            </Helmet>
-            <Waiting for={feeds.draft.size + feeds.normal.size + feeds.unlisted.size > 0 || status === 'idle'}>
-                <main className="w-full flex flex-col justify-center items-center mb-8">
-                    <div className="wauto text-start text-black dark:text-white py-4 text-4xl font-bold">
-                        <p>
-                            {listState === 'draft' ? t('draft_bin') : listState === 'normal' ? t('article.title') : t('unlisted')}
-                        </p>
-                        <div className="flex flex-row justify-between">
-                            <p className="text-sm mt-4 text-neutral-500 font-normal">
-                                {t('article.total$count', { count: currentFeeds.size })}
-                            </p>
-                            {profile?.permission &&
-                                <div className="flex flex-row space-x-4">
-                                    <Link href={listState === 'draft' ? '/?type=normal' : '/?type=draft'} className={`text-sm mt-4 text-neutral-500 font-normal ${listState === 'draft' ? "text-theme" : ""}`}>
-                                        {t('draft_bin')}
-                                    </Link>
-                                    <Link href={listState === 'unlisted' ? '/?type=normal' : '/?type=unlisted'} className={`text-sm mt-4 text-neutral-500 font-normal ${listState === 'unlisted' ? "text-theme" : ""}`}>
-                                        {t('unlisted')}
-                                    </Link>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                    <Waiting for={status === 'idle'}>
-                        <div className={feedListClass}>
-                            {currentFeedData.map(({ id, ...feed }: any) => (
-                                <FeedCard key={id} id={id} {...feed} />
-                            ))}
-                        </div>
-                        <div className="wauto flex flex-row items-center mt-4 ani-show">
-                            {page > 1 &&
-                                <Link href={`/?type=${listState}&page=${(page - 1)}`}
-                                    className={`text-sm font-normal rounded-full px-4 py-2 text-white bg-theme`}>
-                                    {t('previous')}
-                                </Link>
-                            }
-                            <div className="flex-1" />
-                            {currentFeeds.hasNext &&
-                                <Link href={`/?type=${listState}&page=${(page + 1)}`}
-                                    className={`text-sm font-normal rounded-full px-4 py-2 text-white bg-theme`}>
-                                    {t('next')}
-                                </Link>
-                            }
-                        </div>
-                    </Waiting>
-                </main>
-            </Waiting>
-        </>
-    )
+  const { t } = useTranslation();
+  const site = useSiteConfig();
+  const profile = useContext(ProfileContext);
+  const query = new URLSearchParams(useSearch());
+  const rawType = query.get("type");
+  const type: FeedType = rawType === "draft" || rawType === "unlisted" ? rawType : "normal";
+  const page = Math.max(1, tryInt(1, query.get("page")));
+  const limit = Math.max(1, tryInt(site.pageSize, query.get("limit")));
+  const [feeds, setFeeds] = useState<FeedList>(emptyList);
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  useEffect(() => {
+    let active = true;
+    setStatus("loading");
+    client.feed.list({ page, limit, type }).then(({ data, error }) => {
+      if (!active) return;
+      if (error || !data) { setStatus("error"); return; }
+      setFeeds({ ...data, data: Array.isArray(data.data) ? data.data as unknown as FeedCardProps[] : [] });
+      setStatus("ready");
+    }).catch(() => { if (active) setStatus("error"); });
+    return () => { active = false; };
+  }, [page, limit, type, profile?.permission]);
+
+  return <main>
+    <Helmet>
+      <title>{site.name}</title>
+      <meta name="description" content={site.description} />
+      <meta property="og:site_name" content={site.name} />
+      <meta property="og:title" content={site.name} />
+      <meta property="og:description" content={site.description} />
+      <meta property="og:type" content="website" />
+    </Helmet>
+    {type === "normal" && page === 1 && <section className="notebook-intro">
+      <h1>{t("notebook.hello")} <span aria-hidden="true">✳</span></h1>
+      <p>{site.description.split(" / ")[0]}</p>
+      {site.description.includes(" / ") && <p className="notebook-english" lang="en">{site.description.split(" / ").slice(1).join(" / ")}</p>}
+      <p>{t("notebook.intro")}</p>
+      <div className="notebook-tags" aria-label={t("notebook.topics")}>
+        {["AI Native", "工程实践", "项目记录", "中文", "English"].map(name => <Link key={name} href={`/hashtag/${encodeURIComponent(name)}`}>#{name}</Link>)}
+      </div>
+    </section>}
+    <section aria-labelledby="notes-heading" aria-busy={status === "loading"}>
+      <div className="notebook-section-heading">
+        <h2 id="notes-heading">{type === "normal" ? t("notebook.recent") : t(type === "draft" ? "draft_bin" : "unlisted")}</h2>
+        <span>{t("notebook.small_steps")}</span>
+      </div>
+      {profile?.permission && <div className="notebook-manage">
+        <Link className="notebook-link" href="/admin/writing">{t("writing")} ↗</Link>
+        <Link className="notebook-link" href={type === "draft" ? "/" : "/?type=draft"}>{type === "draft" ? t("notebook.home") : t("draft_bin")}</Link>
+        <Link className="notebook-link" href={type === "unlisted" ? "/" : "/?type=unlisted"}>{type === "unlisted" ? t("notebook.home") : t("unlisted")}</Link>
+      </div>}
+      {status === "loading" && <p role="status">{t("notebook.loading")}</p>}
+      {status === "error" && <p role="alert">{t("notebook.load_error")}</p>}
+      {status === "ready" && <>
+        {feeds.data.map(feed => <FeedCard key={feed.id} {...feed} />)}
+        {feeds.data.length === 0 && <div className="notebook-empty">
+          <div className="notebook-empty-symbol" aria-hidden="true">[ … ]</div>
+          <h3>{t("notebook.empty_title")}</h3>
+          <p>{t("notebook.empty_body")}</p>
+          {profile?.permission && <Link className="notebook-link" href="/admin/writing">{t("notebook.first_note")} →</Link>}
+        </div>}
+        {(page > 1 || feeds.hasNext) && <nav className="notebook-pagination" aria-label={t("notebook.pagination")}>
+          {page > 1 ? <Link className="notebook-link" href={`/?type=${type}&page=${page - 1}`}>← {t("previous")}</Link> : <span />}
+          {feeds.hasNext && <Link className="notebook-link" href={`/?type=${type}&page=${page + 1}`}>{t("next")} →</Link>}
+        </nav>}
+      </>}
+    </section>
+  </main>;
 }

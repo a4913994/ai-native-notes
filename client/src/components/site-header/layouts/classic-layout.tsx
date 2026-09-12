@@ -9,7 +9,7 @@ export const classicLayoutDefinition: HeaderLayoutDefinition = {
   renderDesktop({ children, profile, siteConfig }) {
     return (
       <div className="hidden w-full items-center justify-between md:flex">
-        <BrandLink siteConfig={siteConfig} className="mr-8 hidden flex-row items-center md:flex" />
+        <BrandLink siteConfig={siteConfig} className="mr-8 hidden min-w-0 max-w-[45%] flex-row items-center md:flex" />
         <div className="flex min-w-0 flex-1 items-center justify-center">
           <div className="scrollbar-none min-w-0 max-w-full overflow-x-auto rounded-full bg-w px-2 shadow-xl shadow-light t-primary">
             <div className="flex min-w-max flex-row items-center whitespace-nowrap">
@@ -32,10 +32,10 @@ export const classicLayoutDefinition: HeaderLayoutDefinition = {
             <BrandLink
               siteConfig={siteConfig}
               compact
-              className="visible mr-auto flex flex-row items-center py-2 opacity-100 duration-300 md:hidden"
+              className="visible mr-auto flex min-w-0 flex-1 flex-row items-center py-2 opacity-100 duration-300 md:hidden"
             />
             <NavBar menu={false} />
-            <div className="ml-auto flex items-center gap-1">
+            <div className="ml-auto flex shrink-0 items-center gap-1">
               {children ? <div className="flex items-center text-sm t-primary">{children}</div> : null}
               <Menu profile={profile} />
             </div>

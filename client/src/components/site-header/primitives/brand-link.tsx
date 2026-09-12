@@ -27,7 +27,7 @@ export function BrandLink({
         <ImageWithFallback
           src={siteConfig.avatar}
           alt={siteConfig.name}
-          className={avatarClassName || (compact ? "h-10 w-10 rounded-full border-2" : "h-12 w-12 rounded-2xl border-2")}
+          className={`shrink-0 ${avatarClassName || (compact ? "h-10 w-10 rounded-full border-2" : "h-12 w-12 rounded-2xl border-2")}`}
         />
       ) : null}
       <div className={`${showAvatar ? (compact ? "mx-2" : "mx-4") : ""} flex min-w-0 flex-col items-start justify-center`}>

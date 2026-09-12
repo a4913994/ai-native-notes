@@ -1,4 +1,25 @@
 {
+  "notebook": {
+    "home": "首页",
+    "archive": "归档",
+    "topics": "标签",
+    "friends": "友邻",
+    "skip": "跳到正文",
+    "navigation": "主导航",
+    "subtitle": "Learning, building & taking notes.",
+    "hello": "你好，欢迎来到我的笔记本。",
+    "intro": "这里存放学习中的发现、动手做的项目，以及值得留下来的想法。用中文和英文，慢慢记录。",
+    "recent": "最近的笔记",
+    "small_steps": "one idea at a time",
+    "footer": "保持好奇，继续创造。",
+    "empty_title": "新的一页，故事从这里开始。",
+    "empty_body": "笔记本已经打开。发布后的文章会出现在这里。",
+    "first_note": "写下第一篇笔记",
+    "loading": "正在翻开笔记本…",
+    "load_error": "暂时无法加载笔记，请刷新后重试。",
+    "untitled": "未命名笔记",
+    "pagination": "文章分页"
+  },
   "about": {
     "notfound": "将文章别名设置为 about 可以创建关于页面",
     "title": "关于"
