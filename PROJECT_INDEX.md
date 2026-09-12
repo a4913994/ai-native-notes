@@ -1,6 +1,6 @@
 # AI Native Notes
 
-Rin-based bilingual personal blog. Chinese and English posts share one real feed and use topic tags. A persistent toolbar keeps search, interface language, theme and account available. The global language preference changes interface text; there is no separate article-language filter or layout-preview mode.
+Rin-based bilingual personal blog. Chinese and English posts share one real feed and use topic tags. Search, interface language, theme and account appear in a separate top-right homepage utility row; other public pages retain navigation only. Admin pages retain their operational controls. The global language preference changes interface text; there is no separate article-language filter or layout-preview mode.
 
 Live site: https://ai-native-notes-a4913994.pages.dev · Login: https://ai-native-notes-a4913994.pages.dev/login. Deployed and checked from the current computer's network on 2026-09-12. Production contains the same five public articles and private About draft as the local snapshot; credentials are separate in ignored `.env.production.local`.
 

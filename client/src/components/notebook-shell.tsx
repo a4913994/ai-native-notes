@@ -39,12 +39,18 @@ export function NotebookShell({ children, tools, navigation, admin = false }: {
   ];
   const navigationLabel = t(admin ? 'admin.title' : 'notebook.navigation');
   return <NotebookContext.Provider value>
-    <div className={`notebook-shell${admin ? ' notebook-admin' : ''}`}>
+    <div className={`notebook-shell${admin ? ' notebook-admin' : ' notebook-public'}${homeTitle && !admin ? ' notebook-home' : ''}`}>
       <Helmet>
         <meta name="description" content={site.localizedDescription} />
         {config.getBoolean('rss') && <link rel="alternate" type="application/rss+xml" title={site.name} href="/rss.xml" />}
       </Helmet>
       <a className="notebook-skip" href="#notebook-content">{t('notebook.skip')}</a>
+      {homeTitle && !admin && <div className="notebook-home-utilities">
+        <SearchButton plain className="notebook-search" />
+        <div className="notebook-controls">
+          <InterfaceLanguageSwitch /><ThemeSwitch /><AccountMenu profile={profile} enabled={config.getBoolean('login.enabled')} />
+        </div>
+      </div>}
       {!admin && <div className={`notebook-masthead${section ? ' notebook-section-masthead' : ''}`}>
         <div className="notebook-identity">
           {homeTitle ? <h1 className="notebook-site-title">{site.name}</h1> : section ? <div className="notebook-site-title">{sectionTitle}</div> : <Link className="notebook-site-title" href="/">{site.name}</Link>}
@@ -63,10 +69,10 @@ export function NotebookShell({ children, tools, navigation, admin = false }: {
             </nav>
             <div className="notebook-mobile-nav"><ToolbarMenu label={navigationLabel} icon="ri-menu-line" items={links.map(([href,label]) => ({label,action:()=>href.startsWith('https://') ? window.location.assign(href) : navigate(href)}))}><span>{t('notebook.navigation_short')}</span></ToolbarMenu></div>
           </div>
-          <SearchButton plain className="notebook-search" />
+          {admin && <><SearchButton plain className="notebook-search" />
           <div className="notebook-controls">
             <InterfaceLanguageSwitch /><ThemeSwitch /><AccountMenu profile={profile} enabled={config.getBoolean('login.enabled')} />
-          </div>
+          </div></>}
         </div>
       </header>
       <div className="notebook-wrap">

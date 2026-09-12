@@ -1,5 +1,12 @@
 # Implementation status
 
+## Homepage-only utility controls — 2026-09-12
+
+- Search, interface language, theme and account are rendered only on the public homepage in a separate top-right row. Article, archive, subscription and other public pages retain navigation without empty utility columns. Admin controls remain available.
+- Public mobile navigation now fits a single 44px row (about 57px including padding/border). Homepage utilities occupy their own row; non-home pages reclaim the previous second toolbar row.
+- Local Chrome at 1440px and 390px confirms no overflow, homepage language menu visibility, Escape/focus return, and zero search/account/preference controls on article pages. Desktop article width remains 760px. All three type checks and the frontend production build pass.
+- Also verified the 360px homepage search dialog and existing admin controls. Published Pages deployment `b8cda83a`; live primary-domain navigation confirms four homepage utility buttons at the top and zero utility controls on the article page, with no overflow.
+
 ## Large-screen reading refinement — 2026-09-12
 
 - Measured the previous 1920px viewport: 640px body at 18px with an additional sidebar on the right, shifting the combined reading area away from the viewport center.

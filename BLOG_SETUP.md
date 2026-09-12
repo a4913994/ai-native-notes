@@ -24,7 +24,7 @@ R2 已经用户确认开通，超出免费额度会向已绑定付款方式计�
 
 正文与文章标题采用自托管的 Noto Serif SC Variable（思源宋体系列），固定依赖 `@fontsource-variable/noto-serif-sc@5.3.0`，使用 Unicode 分片和 `font-display: swap`，无需访问 Google Fonts。导航保持系统无衬线字体，日期与代码保留 iA Writer Mono。字体许可随发布文件保留在 `/fonts/Noto-Serif-SC-LICENSE.txt`。
 
-保留 [cassidoo.co](https://cassidoo.co/) 的留白和彩色链接：桌面将站名、简介与小头像放在独立页头，下方为最大宽度 1040px 的常驻导航工具栏；阅读正文收窄到 640px。手机保持约 104px 的两行顶部栏。搜索、界面语言、主题和账户入口均在顶部。英文导航为 home / newsletter / blog / github / socials，中文为首页／订阅／博客／GitHub／社交；两者使用相同链接。订阅页 `/newsletter` 提供 RSS，邮件订阅尚未开通；博客链接 `/blog`，`/timeline` 保留兼容；`/socials` 展示已确认的 GitHub 账号及友链入口。页脚仅保留版权、源码、GitHub、RSS。文章详情采用标题、日期、标签、分隔线与正文的顺序，正文 18px；管理操作收进菜单，阅读统计放在文末。与标题完全相同的开头一级标题仅在阅读时去重，不修改原始 Markdown。
+保留 [cassidoo.co](https://cassidoo.co/) 的留白和彩色链接：桌面将站名、简介与小头像放在独立页头，下方保留常驻导航，首页正文最大宽度 640px。搜索、界面语言、主题和账户仅在首页独立的右上角区域展示，其他公共页面只保留导航；手机导航缩为一行，首页另有一行工具区。英文导航为 home / newsletter / blog / github / socials，中文为首页／订阅／博客／GitHub／社交；两者使用相同链接。订阅页 `/newsletter` 提供 RSS，邮件订阅尚未开通；博客链接 `/blog`，`/timeline` 保留兼容；`/socials` 展示已确认的 GitHub 账号及友链入口。页脚仅保留版权、源码、GitHub、RSS。文章详情采用标题、日期、标签、分隔线与正文的顺序，正文在手机、平板、大屏分别使用 18px、19px、20px；管理操作收进菜单，阅读统计放在文末。与标题完全相同的开头一级标题仅在阅读时去重，不修改原始 Markdown。
 
 中文导航和正文使用系统无衬线字体，iA Writer Mono 仅用于站名、日期和代码。字体固定为 `@fontsource/ia-writer-mono@5.3.0`，本地打包并附许可。未复制参考站照片或个人经历。主题支持浅色、深色和跟随系统，保存于原有 `theme` 键；顶部栏和后台共用切换组件。
 

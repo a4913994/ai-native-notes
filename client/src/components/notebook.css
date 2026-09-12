@@ -135,3 +135,16 @@
  .notebook-footer { margin-top: 40px; }
 }
 @media (prefers-reduced-motion: reduce) { .notebook-shell *, .notebook-shell *::before { transition: none !important; animation: none !important; } }
+
+/* Public utilities belong to the homepage, above and outside the reading column. */
+.notebook-home-utilities { order: -1; position: relative; z-index: 50; display: flex; justify-content: flex-end; align-items: center; gap: 8px; padding: 12px 24px 0; }
+.notebook-home > .notebook-masthead { padding-top: 20px; }
+.notebook-public .notebook-topbar-inner { max-width: 680px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "brand"; }
+@media (min-width: 900px) {
+ .notebook-public .notebook-topbar-inner .notebook-navigation { justify-self: start; }
+}
+@media (max-width: 899px) {
+ .notebook-home-utilities { padding: 6px 16px 0; }
+ .notebook-public .notebook-topbar-inner { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand nav"; grid-template-rows: 44px; }
+ .notebook-public .notebook-topbar-inner .notebook-mobile-nav .toolbar-panel { left: auto; right: 0; }
+}
