@@ -6,7 +6,8 @@ import { useTranslation } from "react-i18next";
 import Popup from "reactjs-popup";
 import { Link, useLocation } from "wouter";
 import { useAlert, useConfirm } from "../components/dialog";
-import { HashTag } from "../components/hashtag";
+import { NotebookArticleHeader } from "../components/notebook-article-header";
+import { ToolbarMenu } from "../components/toolbar-controls";
 import { ImageWithFallback } from "../components/image-with-fallback";
 import { Waiting } from "../components/loading";
 import { Markdown } from "../components/markdown";
@@ -21,6 +22,7 @@ import { Tips } from "../components/tips";
 import mermaid from "mermaid";
 import { AdjacentSection } from "../components/adjacent_feed.tsx";
 import { stripImageUrlMetadata } from "../utils/image-upload";
+import { articleBody } from "../utils/article-body";
 
 function extractFirstMarkdownImageUrl(content: string) {
   const match = /!\[.*?\]\((\S+?)(?:\s+"[^"]*")?\)/.exec(content);
@@ -32,7 +34,7 @@ function extractFirstMarkdownImageUrl(content: string) {
 }
 
 export function FeedPage({ id, TOC, clean }: { id: string, TOC: () => JSX.Element, clean: (id: string) => void }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const siteConfig = useSiteConfig();
   const profile = useContext(ProfileContext);
   const [feed, setFeed] = useState<Feed>();
@@ -188,75 +190,17 @@ export function FeedPage({ id, TOC, clean }: { id: string, TOC: () => JSX.Elemen
                 className="notebook-article rounded-2xl bg-w m-2 px-6 py-4"
                 aria-label={feed.title ?? "Unnamed"}
               >
-                  <div className="flex flex-col justify-between gap-2 sm:flex-row">
-                  <div>
-                    <div className="mt-1 mb-1 flex gap-1">
-                      <p
-                        className="text-gray-400 text-[12px]"
-                        title={new Date(feed.createdAt).toLocaleString(i18n.resolvedLanguage || 'zh-CN')}
-                      >
-                        {t("feed_card.published$time", {
-                          time: timeago(feed.createdAt),
-                        })}
-                      </p>
-
-                      {feed.createdAt !== feed.updatedAt && (
-                        <p
-                          className="text-gray-400 text-[12px]"
-                          title={new Date(feed.updatedAt).toLocaleString(i18n.resolvedLanguage || 'zh-CN')}
-                        >
-                          {t("feed_card.updated$time", {
-                            time: timeago(feed.updatedAt),
-                          })}
-                        </p>
-                      )}
-                    </div>
-                    {counterEnabled && <p className='text-[12px] text-gray-400 font-normal link-line'>
-                      <span> {t("count.pv")} </span>
-                      <span>
-                        {feed.pv}
-                      </span>
-                      <span> |</span>
-                      <span> {t("count.uv")} </span>
-                      <span>
-                        {feed.uv}
-                      </span>
-                    </p>}
-                    <div className="flex flex-row items-center">
-                      <h1 className="text-2xl font-bold t-primary break-all">
-                        {feed.title}
-                      </h1>
-                      <div className="flex-1 w-0" />
-                    </div>
-                  </div>
-                  <div className="pt-2">
-                    {profile?.permission && (
-                      <div className="flex gap-2">
-                        <button
-                          aria-label={top > 0 ? t("untop.title") : t("top.title")}
-                          onClick={topFeed}
-                          className={`flex-1 flex flex-col items-end justify-center px-2 py rounded-full transition ${top > 0 ? "bg-theme text-white hover:bg-theme-hover active:bg-theme-active" : "bg-secondary bg-button dark:text-neutral-400"}`}
-                        >
-                          <i className="ri-skip-up-line" />
-                        </button>
-                        <Link
-                          aria-label={t("edit")}
-                          href={`/admin/writing/${feed.id}`}
-                          className="flex-1 flex flex-col items-end justify-center px-2 py bg-secondary bg-button rounded-full transition"
-                        >
-                          <i className="ri-edit-2-line dark:text-neutral-400" />
-                        </Link>
-                        <button
-                          aria-label={t("delete.title")}
-                          onClick={deleteFeed}
-                          className="flex-1 flex flex-col items-end justify-center px-2 py bg-secondary bg-button rounded-full transition"
-                        >
-                          <i className="ri-delete-bin-7-line text-red-500" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <NotebookArticleHeader
+                  title={feed.title ?? ''}
+                  createdAt={feed.createdAt}
+                  updatedAt={feed.updatedAt}
+                  tags={hashtags}
+                  actions={profile?.permission ? <ToolbarMenu label={t('notebook.article_actions')} icon="ri-more-line" items={[
+                    { label: t('edit'), action: () => setLocation(`/admin/writing/${feed.id}`) },
+                    { label: t(top > 0 ? 'untop.title' : 'top.title'), action: topFeed },
+                    { label: t('delete.title'), action: deleteFeed },
+                  ]} /> : undefined}
+                />
                 {(hasAISummary || showAISummaryState) && (
                   <div className="my-4 p-4 rounded-xl bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-100 dark:border-purple-800/30">
                     <div className="flex items-center justify-between gap-2 mb-2">
@@ -282,15 +226,11 @@ export function FeedPage({ id, TOC, clean }: { id: string, TOC: () => JSX.Elemen
                     ) : null}
                   </div>
                 )}
-                <Markdown content={feed.content} />
+                <Markdown content={articleBody(feed.content, feed.title ?? '')} />
                 <div className="mt-6 flex flex-col gap-2">
-                  {hashtags.length > 0 && (
-                    <div className="flex flex-row flex-wrap gap-x-2">
-                      {hashtags.map(({ name }, index) => (
-                        <HashTag key={index} name={name} />
-                      ))}
-                    </div>
-                  )}
+                  {counterEnabled && <p className="notebook-article-stats">
+                    {t('count.pv')} {feed.pv} · {t('count.uv')} {feed.uv}
+                  </p>}
                   <div className="flex min-w-0 flex-row items-center">
                     <ImageWithFallback
                       src={feed.user.avatar || "/avatar.png"}
@@ -305,6 +245,10 @@ export function FeedPage({ id, TOC, clean }: { id: string, TOC: () => JSX.Elemen
                   </div>
                 </div>
               </article>
+              <nav className="notebook-page-links notebook-reading-links" aria-label={t('notebook.continue_reading')}>
+                <Link className="notebook-link" href="/blog">← {t('notebook.archive_title')}</Link>
+                <Link className="notebook-link" href="/newsletter">{t('notebook.newsletter_title')} →</Link>
+              </nav>
               {id !== "about" && <AdjacentSection id={id} setError={setError} />}
               {feed && <Comments id={`${feed.id}`} />}
               <div className="h-16" />

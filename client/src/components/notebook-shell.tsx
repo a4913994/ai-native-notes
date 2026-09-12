@@ -8,8 +8,10 @@ import { ClientConfigContext } from "../state/config";
 import { SearchButton } from "./site-header/primitives/action-buttons";
 import { AccountMenu, InterfaceLanguageSwitch, ThemeSwitch, ToolbarMenu } from "./toolbar-controls";
 import { NotebookContext } from "./notebook-context";
+import { ImageWithFallback } from "./image-with-fallback";
 export { NotebookContext } from "./notebook-context";
 import "./notebook.css";
+import "./notebook-pages.css";
 import "@fontsource/ia-writer-mono/latin-400.css";
 
 export function NotebookShell({ children, tools, navigation, admin = false }: {
@@ -23,8 +25,18 @@ export function NotebookShell({ children, tools, navigation, admin = false }: {
   const profile = useContext(ProfileContext);
   const config = useContext(ClientConfigContext);
   const [location, navigate] = useLocation();
+  const homeTitle = location === '/';
+  const section = location === '/newsletter' ? 'newsletter' : location === '/socials' ? 'socials' : ['/blog', '/timeline'].includes(location) ? 'archive' : undefined;
+  const sectionTitle = section ? t(`notebook.${section}_masthead`) : site.name;
+  const sectionDescription = section ? t(`notebook.${section}_description`) : site.localizedDescription;
   useEffect(() => { window.scrollTo(0, 0); }, [location]);
-  const links = navigation || [['/', t('notebook.home')], ['/timeline', t('notebook.archive')], ['/hashtags', t('notebook.topics')], ['/friends', t('notebook.friends')]];
+  const links = navigation || [
+    ['/', t('notebook.nav_home')],
+    ['/newsletter', t('notebook.nav_newsletter')],
+    ['/blog', t('notebook.nav_blog')],
+    ['https://github.com/a4913994', t('notebook.nav_github')],
+    ['/socials', t('notebook.nav_socials')],
+  ];
   const navigationLabel = t(admin ? 'admin.title' : 'notebook.navigation');
   return <NotebookContext.Provider value>
     <div className={`notebook-shell${admin ? ' notebook-admin' : ''}`}>
@@ -33,14 +45,23 @@ export function NotebookShell({ children, tools, navigation, admin = false }: {
         {config.getBoolean('rss') && <link rel="alternate" type="application/rss+xml" title={site.name} href="/rss.xml" />}
       </Helmet>
       <a className="notebook-skip" href="#notebook-content">{t('notebook.skip')}</a>
+      {!admin && <div className={`notebook-masthead${section ? ' notebook-section-masthead' : ''}`}>
+        <div className="notebook-identity">
+          {homeTitle ? <h1 className="notebook-site-title">{site.name}</h1> : section ? <div className="notebook-site-title">{sectionTitle}</div> : <Link className="notebook-site-title" href="/">{site.name}</Link>}
+          <p>{sectionDescription}</p>
+        </div>
+        <ImageWithFallback src={site.avatar || '/avatar.svg'} alt="" className="notebook-avatar" />
+      </div>}
       <header className="notebook-topbar">
         <div className="notebook-topbar-inner">
-          <div className="notebook-brand">{location === '/' ? <h1><Link href="/">{site.name}</Link></h1> : <Link href="/">{site.name}</Link>}</div>
+          <div className="notebook-brand"><Link href="/">{site.name}</Link></div>
           <div className="notebook-navigation">
             <nav className="notebook-desktop-nav" aria-label={navigationLabel}>
-              {links.map(([href, label]) => <Link key={href} href={href} aria-current={location === href || (admin && location.startsWith(`${href}/`)) ? 'page' : undefined}>{label}</Link>)}
+              {links.map(([href, label]) => href.startsWith('https://')
+                ? <a key={href} href={href}>{label}</a>
+                : <Link key={href} href={href} aria-current={location === href || (href === '/blog' && (location === '/timeline' || location.startsWith('/feed/') || location.startsWith('/hashtag'))) || (admin && location.startsWith(`${href}/`)) ? 'page' : undefined}>{label}</Link>)}
             </nav>
-            <div className="notebook-mobile-nav"><ToolbarMenu label={navigationLabel} icon="ri-menu-line" items={links.map(([href,label]) => ({label,action:()=>navigate(href)}))}><span>{t('notebook.navigation_short')}</span></ToolbarMenu></div>
+            <div className="notebook-mobile-nav"><ToolbarMenu label={navigationLabel} icon="ri-menu-line" items={links.map(([href,label]) => ({label,action:()=>href.startsWith('https://') ? window.location.assign(href) : navigate(href)}))}><span>{t('notebook.navigation_short')}</span></ToolbarMenu></div>
           </div>
           <SearchButton plain className="notebook-search" />
           <div className="notebook-controls">

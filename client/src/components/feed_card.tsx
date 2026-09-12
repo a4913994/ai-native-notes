@@ -90,6 +90,7 @@ const FEED_CARD_STYLES: Record<
 };
 
 export type FeedCardProps = {
+    headingLevel?: 2 | 3;
     href?: string;
     id: string;
     avatar?: string;
@@ -105,7 +106,7 @@ export type FeedCardProps = {
     variant?: FeedCardVariant;
 };
 
-export function FeedCard({ id, href, title, avatar, draft, listed, top, summary, hashtags, createdAt, updatedAt, preview = false, variant }: FeedCardProps) {
+export function FeedCard({ id, href, title, avatar, draft, listed, top, summary, hashtags, createdAt, updatedAt, preview = false, variant, headingLevel = 2 }: FeedCardProps) {
     const { t, i18n } = useTranslation();
     const notebook = useContext(NotebookContext);
     const siteConfig = useSiteConfig();
@@ -113,10 +114,11 @@ export function FeedCard({ id, href, title, avatar, draft, listed, top, summary,
     const activeVariant = normalizeFeedCardVariant(variant ?? siteConfig.feedCardVariant);
     const styles = FEED_CARD_STYLES[activeVariant];
     if (notebook && !preview) {
+        const Heading = headingLevel === 3 ? 'h3' : 'h2';
         const date = new Date(createdAt);
         return <article className="notebook-post">
             <div className="notebook-post-heading">
-                <h2><Link href={href ?? `/feed/${id}`}>{title || t("notebook.untitled")}</Link></h2>
+                <Heading><Link href={href ?? `/feed/${id}`}>{title || t("notebook.untitled")}</Link></Heading>
                 {!Number.isNaN(date.getTime()) && <time dateTime={date.toISOString()}>{date.toLocaleDateString(i18n.language, { year: "numeric", month: "short", day: "numeric" })}</time>}
             </div>
             <div className="notebook-post-flags">

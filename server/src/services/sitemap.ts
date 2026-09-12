@@ -93,6 +93,9 @@ async function generateSitemapXml(env: Env, db: DB, requestUrl?: string): Promis
   // 聚合页面：各自携带对应数据源的最新更新时间
   addUrl("/", latestFeedUpdatedAt);
   addUrl("/timeline", latestFeedUpdatedAt);
+  addUrl("/blog", latestFeedUpdatedAt);
+  addUrl("/newsletter", latestFeedUpdatedAt);
+  addUrl("/socials");
   addUrl("/moments", momentRows[0]?.updatedAt);
   addUrl("/friends", friendRows[0]?.updatedAt);
   addUrl("/hashtags", latestHashtagUpdatedAt);

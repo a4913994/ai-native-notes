@@ -44,6 +44,7 @@ describe("SitemapService", () => {
 
     const sitemap = await requestCtx.app.request("https://blog.example/sitemap.xml", { method: "GET" }, env);
     const xml = await sitemap.text();
+    for (const path of ['/blog', '/newsletter', '/socials']) expect(xml).toContain(`https://blog.example${path}</loc>`);
     expect(xml).toContain("https://blog.example/published");
     expect(xml).toContain("https://blog.example/about");
     expect(xml).not.toContain("https://blog.example/unlisted");

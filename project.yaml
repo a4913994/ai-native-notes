@@ -5,12 +5,21 @@ upstream: https://github.com/openRin/Rin
 upstream_commit: 308a542df6165bbf757fad111d7f8ab6296db771
 bun: 1.3.13
 local_url: http://localhost:11498
-production_url: null
+production_url: https://ai-native-notes-a4913994.pages.dev
+production_worker: ai-native-notes-server
+production_pages: ai-native-notes-a4913994
+production_database: ai-native-notes
+production_database_id: ed3c4369-fde6-497d-b9fc-a7ab2899bb24
+production_images: ai-native-notes-images
+production_queue: ai-native-notes-tasks
+deployed_on: 2026-09-12
 languages: [zh-CN, en]
 interface_languages: [zh-CN, en, zh-TW, ja]
 authentication: admin-password
 hosting: cloudflare-pages-workers-d1-r2
-content_status: about-draft-only
-public_design: article-first-sticky-toolbar
+content_status: five-published-starter-posts-and-private-about-draft
+public_design: compact-masthead-reading-column
+public_navigation: [home, newsletter, blog, github, socials]
+archive_path: /blog
 design_reference: https://cassidoo.co/
 admin_design: shared-notebook-workspace

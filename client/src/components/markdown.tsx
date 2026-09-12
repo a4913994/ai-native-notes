@@ -211,7 +211,7 @@ export function Markdown({ content }: { content: string }) {
               <div className="relative group">
                 <SyntaxHighlighter
                   PreTag="div"
-                  className="rounded"
+                  className="markdown-code-block rounded"
                   language={language}
                   style={
                     colorMode === "dark"
@@ -223,7 +223,7 @@ export function Markdown({ content }: { content: string }) {
                 >
                   {String(children).replace(/\n$/, "")}
                 </SyntaxHighlighter>
-                <button className="absolute top-1 right-1 px-2 py-1 bg-w rounded-md text-sm bg-hover select-none invisible group-hover:visible"
+                <button className="markdown-code-copy absolute top-1 right-1 px-2 py-1 bg-w rounded-md text-sm bg-hover select-none invisible group-hover:visible focus:visible"
                   onClick={() => {
                     navigator.clipboard.writeText(String(children));
                     setCopied(true);

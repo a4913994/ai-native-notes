@@ -1,10 +1,14 @@
-import { cp, mkdir } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
+import { publishPages } from "./blog-pages";
 import { parseEnv } from "../cli/src/lib/env";
 import { runCloudflareDeploy } from "../cli/src/tasks/deploy-cf";
 
 const file = Bun.file(".env.production.local");
 if (!(await file.exists())) throw new Error("Copy .env.production.example to .env.production.local and fill the Cloudflare credentials.");
 const env = parseEnv(await file.text());
+// Allow a short-lived deployment token supplied by the authenticated CLI session.
+// Never persist OAuth tokens alongside the site's production configuration.
+env.CLOUDFLARE_API_TOKEN ||= process.env.CLOUDFLARE_API_TOKEN || "";
 const required = ["CLOUDFLARE_ACCOUNT_ID", "CLOUDFLARE_API_TOKEN", "PAGES_NAME", "WORKER_NAME", "DB_NAME", "R2_BUCKET_NAME", "FRONTEND_URL", "S3_ACCESS_HOST", "ADMIN_USERNAME", "ADMIN_PASSWORD", "JWT_SECRET"];
 for (const name of required) if (!env[name]) throw new Error(`Missing production configuration: ${name}`);
 if (env.ADMIN_PASSWORD.length < 24 || env.JWT_SECRET.length < 32) throw new Error("Use a random production password (24+ characters) and JWT secret (32+ characters).");
@@ -38,15 +42,14 @@ if (process.argv.includes("--preflight")) {
 const buckets = await cf("/r2/buckets");
 if (!buckets.buckets.some((bucket: any) => bucket.name === env.R2_BUCKET_NAME)) await cf("/r2/buckets", "POST", { name: env.R2_BUCKET_NAME });
 const projects = await cf("/pages/projects");
-if (!projects.some((project: any) => project.name === env.PAGES_NAME)) await cf("/pages/projects", "POST", { name: env.PAGES_NAME, production_branch: "main" });
+const project = projects.find((project: any) => project.name === env.PAGES_NAME)
+  || await cf("/pages/projects", "POST", { name: env.PAGES_NAME, production_branch: "main" });
+if (`https://${project.subdomain}` !== env.FRONTEND_URL) {
+  throw new Error(`Pages assigned ${project.subdomain}. Choose a unique PAGES_NAME and update FRONTEND_URL/S3_ACCESS_HOST before publishing.`);
+}
 await run(["run", "build:client"]);
 await runCloudflareDeploy("all");
-await mkdir("dist/pages", { recursive: true });
-await cp("dist/client", "dist/pages", { recursive: true });
-await run(["build", "deploy/pages-worker.ts", "--target=browser", "--outfile=dist/pages/_worker.js"]);
-await mkdir("deploy/pages", { recursive: true });
-await Bun.write("deploy/pages/wrangler.toml", `name = ${JSON.stringify(env.PAGES_NAME)}\npages_build_output_dir = "../../dist/pages"\ncompatibility_date = "2026-01-20"\n[[services]]\nbinding = "BACKEND"\nservice = ${JSON.stringify(env.WORKER_NAME)}\n`);
-await run(["x", "wrangler", "pages", "deploy", "../../dist/pages", "--project-name", env.PAGES_NAME, "--branch", "main"], "deploy/pages");
+await publishPages(env.PAGES_NAME, env.WORKER_NAME);
 await mkdir("backups", { recursive: true });
 await run(["x", "wrangler", "d1", "export", env.DB_NAME, "--remote", "--output", `backups/before-acceptance-${Date.now()}.sql`]);
-console.log(`Deployed ${env.FRONTEND_URL}. Run blog-seed.ts .env.production.local, then verify from the user's network.`);
+console.log(`Deployed ${env.FRONTEND_URL}. Import the reviewed content snapshot on first deployment, then verify from the user's network.`);

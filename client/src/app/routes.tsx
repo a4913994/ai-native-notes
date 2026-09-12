@@ -7,6 +7,8 @@ import { NotebookShell } from "../components/notebook-shell";
 import { Tips, TipsPage } from "../components/tips";
 import useTableOfContents from "../hooks/useTableOfContents";
 import { CallbackPage } from "../page/callback";
+import { NewsletterPage } from "../page/newsletter";
+import { SocialsPage } from "../page/socials";
 import { CompatTasksPage } from "../page/compat-tasks";
 import { ErrorPage } from "../page/error";
 import { FeedPage, TOCHeader } from "../page/feed";
@@ -21,7 +23,7 @@ import { ProfilePage } from "../page/profile";
 import { QueueStatusPage } from "../page/queue-status";
 import { SearchPage } from "../page/search";
 import { Settings } from "../page/settings";
-import { TimelinePage } from "../page/timeline";
+import { BlogArchivePage } from "../page/blog-archive";
 import { WritingPage } from "../page/writing";
 import { ProfileContext } from "../state/profile";
 import { tryInt } from "../utils/int";
@@ -37,7 +39,19 @@ export function AppRoutes() {
       </AppRoute>
 
       <AppRoute path="/timeline">
-        <TimelinePage />
+        <BlogArchivePage />
+      </AppRoute>
+
+      <AppRoute path="/blog">
+        <BlogArchivePage />
+      </AppRoute>
+
+      <AppRoute path="/newsletter">
+        <NewsletterPage />
+      </AppRoute>
+
+      <AppRoute path="/socials">
+        <SocialsPage />
       </AppRoute>
 
       <AppRoute path="/moments">
