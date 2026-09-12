@@ -1,6 +1,6 @@
 import type { AdjacentFeed, AdjacentFeedResponse } from "@rin/api";
 import {useContext, useEffect, useState} from "react";
-import { NotebookContext } from "./notebook-shell";
+import { NotebookContext } from "./notebook-context";
 import { client } from "../app/runtime";
 import {timeago} from "../utils/timeago.ts";
 import {Link} from "wouter";

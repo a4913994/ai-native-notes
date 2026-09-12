@@ -1,55 +1,52 @@
 import { useState, useEffect } from "react";
 
+export type ThemeMode = 'light' | 'dark' | 'system';
+export function readThemeMode(): ThemeMode {
+  const value = localStorage.getItem('theme');
+  return value === 'light' || value === 'dark' ? value : 'system';
+}
+export function resolveTheme(mode: ThemeMode, systemDark: boolean): 'light' | 'dark' {
+  return mode === 'system' ? (systemDark ? 'dark' : 'light') : mode;
+}
+function applyTheme() {
+  const color = resolveTheme(readThemeMode(), window.matchMedia('(prefers-color-scheme: dark)').matches);
+  document.documentElement.setAttribute('data-color-mode', color);
+  window.dispatchEvent(new Event('colorSchemeChange'));
+}
+export function setThemeMode(mode: ThemeMode) {
+  localStorage.setItem('theme', mode);
+  applyTheme();
+}
+let listening = false;
 export function listenSystemMode() {
-  const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
-  function darkModeHandler() {
-    const mode = localStorage.getItem("theme");
-    if (mode === null || mode === "system") {
-      if (mediaQuery.matches) {
-        document.documentElement.setAttribute("data-color-mode", "dark");
-      } else {
-        document.documentElement.setAttribute("data-color-mode", "light");
-      }
-      window.dispatchEvent(new Event("colorSchemeChange"));
-    }
-  }
-
-  // 判断当前模式
-  darkModeHandler();
-  // 监听模式变化
-  mediaQuery.addEventListener("change", darkModeHandler);
+  applyTheme();
+  if (listening) return;
+  listening = true;
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if (readThemeMode() === 'system') applyTheme();
+  });
+  window.addEventListener('storage', event => {
+    if (event.key === 'theme' || event.key === null) applyTheme();
+  });
 }
-
-export function getCurrentColorMode(): "light" | "dark" {
-  return (
-    (document.documentElement.getAttribute("data-color-mode") as
-      | "light"
-      | "dark") || "light"
-  );
+export function getCurrentColorMode(): 'light' | 'dark' {
+  return document.documentElement.getAttribute('data-color-mode') === 'dark' ? 'dark' : 'light';
 }
-
 export function useColorMode() {
-  const [colorMode, setColorMode] = useState<"light" | "dark">(
-    getCurrentColorMode()
-  );
-
+  const [color, setColor] = useState(getCurrentColorMode);
   useEffect(() => {
-    const updateColorMode = () => {
-      setColorMode(getCurrentColorMode());
-    };
-
-    // 初始设置
-    updateColorMode();
-
-    // 监听颜色模式变化事件
-    window.addEventListener("colorSchemeChange", updateColorMode);
-
-    // 清理函数
-    return () => {
-      window.removeEventListener("colorSchemeChange", updateColorMode);
-    };
+    const update = () => setColor(getCurrentColorMode());
+    window.addEventListener('colorSchemeChange', update);
+    return () => window.removeEventListener('colorSchemeChange', update);
   }, []);
-
-  return colorMode;
+  return color;
+}
+export function useThemeMode() {
+  const [mode, setMode] = useState(readThemeMode);
+  useEffect(() => {
+    const update = () => setMode(readThemeMode());
+    window.addEventListener('colorSchemeChange', update);
+    return () => window.removeEventListener('colorSchemeChange', update);
+  }, []);
+  return [mode, setThemeMode] as const;
 }

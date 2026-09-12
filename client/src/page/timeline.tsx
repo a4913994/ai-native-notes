@@ -95,14 +95,15 @@ export function TimelinePage() {
 }
 
 export function FeedItem({ id, title, createdAt }: { id: string, title: string, createdAt: Date }) {
-    const formatter = new Intl.DateTimeFormat('en-US', { day: '2-digit', month: '2-digit' });
+    const { i18n } = useTranslation();
+    const formatter = new Intl.DateTimeFormat(i18n.resolvedLanguage || 'zh-CN', { day: '2-digit', month: '2-digit' });
     return (
         <div className="flex min-w-0 flex-row pl-8">
             <div className="flex shrink-0 flex-row items-center">
                 <div className="w-2 h-2 bg-theme rounded-full"></div>
             </div>
             <div className="m-2 flex min-w-0 flex-1 flex-row items-center space-x-4 rounded-2xl duration-300">
-                <span className="shrink-0 text-sm t-secondary" title={new Date(createdAt).toLocaleString()}>
+                <span className="shrink-0 text-sm t-secondary" title={new Date(createdAt).toLocaleString(i18n.resolvedLanguage || 'zh-CN')}>
                     {formatter.format(new Date(createdAt))}
                 </span>
                 <Link href={`/feed/${id}`} target="_blank" rel="noopener noreferrer" className="min-w-0 break-words text-base t-primary hover:text-theme text-pretty [overflow-wrap:anywhere]">

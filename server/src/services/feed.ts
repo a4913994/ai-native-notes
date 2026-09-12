@@ -4,12 +4,12 @@ import {
     feedUpdateSchema,
 } from "@rin/api";
 import type { CreateFeedRequest, UpdateFeedRequest } from "@rin/api";
-import { and, asc, count, desc, eq, gt, lt } from "drizzle-orm";
+import { and, asc, count, desc, eq, gt, lt, inArray } from "drizzle-orm";
 import { Hono } from "hono";
 import type { Variables } from "../core/hono-types";
 import { adminOnly, userOnly, withJsonBody } from "../core/route-boundaries";
 import { profileAsync } from "../core/server-timing";
-import { feeds, visits, visitStats } from "../db/schema";
+import { feeds, visits, visitStats, feedHashtags, hashtags } from "../db/schema";
 import {
     deleteFeedById,
     findDuplicateFeed,
@@ -80,6 +80,7 @@ export function FeedService(): Hono<{
         const page = c.req.query('page');
         const limit = c.req.query('limit');
         const type = c.req.query('type');
+        const tag = c.req.query('tag')?.trim() || undefined;
 
         if ((type === 'draft' || type === 'unlisted') && !admin) {
             return c.text('Permission denied', 403);
@@ -87,18 +88,23 @@ export function FeedService(): Hono<{
 
         const page_num = parsePositiveInteger(page, 1) - 1;
         const limit_num = parsePositiveInteger(limit, 20, 50);
-        const cacheKey = `feeds_${type}_${page_num}_${limit_num}`;
+        const cacheKey = `feeds_${type}_${page_num}_${limit_num}_${encodeURIComponent(tag ?? '')}_${admin ? 'admin' : 'public'}`;
         const cached = await profileAsync(c, 'feed_list_cache_get', () => cache.get(cacheKey));
 
         if (cached) {
             return c.json(cached);
         }
 
-        const where = type === 'draft'
+        const visibility = type === 'draft'
             ? eq(feeds.draft, 1)
             : type === 'unlisted'
                 ? and(eq(feeds.draft, 0), eq(feeds.listed, 0))
                 : and(eq(feeds.draft, 0), eq(feeds.listed, 1));
+        const where = and(visibility, tag ? inArray(feeds.id,
+            db.select({ id: feedHashtags.feedId }).from(feedHashtags)
+                .innerJoin(hashtags, eq(feedHashtags.hashtagId, hashtags.id))
+                .where(eq(hashtags.name, tag)),
+        ) : undefined);
 
         const size = await profileAsync(c, 'feed_list_count', () => db.select({ count: count() }).from(feeds).where(where));
 
@@ -118,7 +124,7 @@ export function FeedService(): Hono<{
                 },
                 user: { columns: { id: true, username: true, avatar: true } }
             },
-            orderBy: [desc(feeds.top), desc(feeds.createdAt), desc(feeds.updatedAt)],
+            orderBy: [desc(feeds.top), desc(feeds.createdAt), desc(feeds.updatedAt), desc(feeds.id)],
             offset: page_num * limit_num,
             limit: limit_num + 1,
         }))).map(({ content, hashtags, summary, ...other }: any) => {

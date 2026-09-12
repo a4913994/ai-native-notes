@@ -1,6 +1,13 @@
 import type { AIConfig } from "@rin/api";
 
 export const WEBHOOK_URL_KEY = "WEBHOOK_URL";
+export const SITE_LOCALES = ["zh-CN", "en", "zh-TW", "ja"] as const;
+export const SITE_DESCRIPTIONS = {
+  "zh-CN": "记录 AI Native 时代的技术笔记与项目实践。",
+  en: "Technical notes and project practice in the AI-native era.",
+  "zh-TW": "記錄 AI Native 時代的技術筆記與專案實踐。",
+  ja: "AI ネイティブ時代の技術ノートとプロジェクト実践を記録します。",
+} as const;
 
 export const CLIENT_CONFIG_DEFAULTS = new Map(
   Object.entries({
@@ -16,6 +23,7 @@ export const CLIENT_CONFIG_DEFAULTS = new Map(
     "login.enabled": true,
     "site.name": "Rin",
     "site.description": "A lightweight personal blogging system",
+    ...Object.fromEntries(SITE_LOCALES.map(locale => [`site.description.${locale}`, SITE_DESCRIPTIONS[locale]])),
     "site.avatar": "",
     "site.page_size": 5,
   }),

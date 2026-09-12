@@ -1,6 +1,6 @@
 # AI Native Notes
 
-Rin-based bilingual personal blog. Chinese and English posts share one feed and use tags.
+Rin-based bilingual personal blog. Chinese and English posts share one feed and use tags. A persistent toolbar keeps search, interface language, theme and account available; article language filters are independent of the interface language.
 
 - [Local setup and operations](BLOG_SETUP.md)
 - [Implementation and verification status](tracking/status.md)

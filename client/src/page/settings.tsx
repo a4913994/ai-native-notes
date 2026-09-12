@@ -17,6 +17,7 @@ import { FEED_CARD_VARIANTS, normalizeFeedCardVariant } from "../components/feed
 import { FeedCardPreview } from "../components/feed-card-preview";
 import { FEED_LAYOUT_OPTIONS, normalizeFeedLayout } from "../components/feed-layout-options";
 import { useSiteConfig } from "../hooks/useSiteConfig";
+import { SITE_LOCALES } from "@rin/config";
 import { applyThemeColor, normalizeThemeColor } from "../utils/theme-color";
 import { AISummarySettings } from "./settings-ai";
 import { ItemButton, ItemImageInput, ItemInput, ItemSwitch, ItemTitle, ItemWithUpload } from "./settings-items";
@@ -205,6 +206,15 @@ export function Settings() {
               setConfigValue("client", "site.description", value);
             }}
           />
+          {SITE_LOCALES.map(locale => <ItemInput
+            key={locale}
+            title={`${t("notebook.localized_description")} · ${locale}`}
+            description={t("notebook.localized_description_help")}
+            configKeyTitle={`site.description.${locale}`}
+            value={String(clientConfig.get(`site.description.${locale}`) ?? "")}
+            placeholder={String(clientConfig.default(`site.description.${locale}`) ?? "")}
+            onChange={value => setConfigValue("client", `site.description.${locale}`, value)}
+          />)}
           <ItemImageInput
             title={t("settings.site.avatar.title")}
             description={t("settings.site.avatar.desc")}

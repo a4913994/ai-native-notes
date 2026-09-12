@@ -1,6 +1,7 @@
 import "katex/dist/katex.min.css";
 import React, { cloneElement, isValidElement, useEffect, useMemo, useRef } from "react";
 import ReactMarkdown from "react-markdown";
+import { useTranslation } from "react-i18next";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import {
   base16AteliersulphurpoolLight,
@@ -123,6 +124,7 @@ function MarkdownImage({
 }
 
 export function Markdown({ content }: { content: string }) {
+  const { t } = useTranslation();
   const colorMode = useColorMode();
   const [index, setIndex] = React.useState(-1);
   const slides = useRef<SlideImage[]>();
@@ -228,7 +230,7 @@ export function Markdown({ content }: { content: string }) {
                     setTimeout(() => setCopied(false), 2000);
                   }}
                 >
-                  {copied ? "Copied!" : "Copy"}
+                  {t(copied ? "notebook.copied" : "notebook.copy")}
                 </button>
               </div>
             );
@@ -438,7 +440,7 @@ export function Markdown({ content }: { content: string }) {
           return <div {...props}>{children}</div>;
         },
       }}
-    />), [content])
+    />), [content, colorMode, t])
 
 
 

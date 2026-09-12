@@ -1,4 +1,5 @@
 import { useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { ClientConfigContext } from "../state/config";
 import { normalizeFeedCardVariant } from "../components/feed-card-options";
 import { normalizeFeedLayout } from "../components/feed-layout-options";
@@ -18,6 +19,7 @@ export const SITE_CONFIG_KEYS = {
 
 // Hook to get site configuration
 export function useSiteConfig() {
+    const { i18n } = useTranslation();
     const config = useContext(ClientConfigContext);
     const pageSizeValue = config.get<string | number>(SITE_CONFIG_KEYS.pageSize);
     const parsedPageSize =
@@ -30,6 +32,7 @@ export function useSiteConfig() {
     return {
         name: config.get<string>(SITE_CONFIG_KEYS.name) || "Rin",
         description: config.get<string>(SITE_CONFIG_KEYS.description) || "",
+        localizedDescription: config.get<string>(`site.description.${i18n.resolvedLanguage || "zh-CN"}`) || config.get<string>("site.description.zh-CN") || "",
         avatar: config.get<string>(SITE_CONFIG_KEYS.avatar) || "",
         pageSize: Number.isFinite(parsedPageSize) ? parsedPageSize : 5,
         headerBehavior: config.get<string>(SITE_CONFIG_KEYS.headerBehavior) || "fixed",

@@ -32,7 +32,7 @@ function extractFirstMarkdownImageUrl(content: string) {
 }
 
 export function FeedPage({ id, TOC, clean }: { id: string, TOC: () => JSX.Element, clean: (id: string) => void }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const siteConfig = useSiteConfig();
   const profile = useContext(ProfileContext);
   const [feed, setFeed] = useState<Feed>();
@@ -193,7 +193,7 @@ export function FeedPage({ id, TOC, clean }: { id: string, TOC: () => JSX.Elemen
                     <div className="mt-1 mb-1 flex gap-1">
                       <p
                         className="text-gray-400 text-[12px]"
-                        title={new Date(feed.createdAt).toLocaleString()}
+                        title={new Date(feed.createdAt).toLocaleString(i18n.resolvedLanguage || 'zh-CN')}
                       >
                         {t("feed_card.published$time", {
                           time: timeago(feed.createdAt),
@@ -203,7 +203,7 @@ export function FeedPage({ id, TOC, clean }: { id: string, TOC: () => JSX.Elemen
                       {feed.createdAt !== feed.updatedAt && (
                         <p
                           className="text-gray-400 text-[12px]"
-                          title={new Date(feed.updatedAt).toLocaleString()}
+                          title={new Date(feed.updatedAt).toLocaleString(i18n.resolvedLanguage || 'zh-CN')}
                         >
                           {t("feed_card.updated$time", {
                             time: timeago(feed.updatedAt),
@@ -326,12 +326,13 @@ export function FeedPage({ id, TOC, clean }: { id: string, TOC: () => JSX.Elemen
 }
 
 export function TOCHeader({ TOC }: { TOC: () => JSX.Element }) {
+  const { t } = useTranslation();
   const [isOpened, setIsOpened] = useState(false);
 
   return (
     <div className="shrink-0">
       <button
-        aria-label="Table of contents"
+        aria-label={t('notebook.toc')}
         onClick={() => setIsOpened(true)}
         className="w-10 h-10 rounded-full flex flex-row items-center justify-center"
       >
@@ -340,7 +341,7 @@ export function TOCHeader({ TOC }: { TOC: () => JSX.Element }) {
       <Modal
         isOpen={isOpened}
         onRequestClose={() => setIsOpened(false)}
-        contentLabel="Table of contents"
+        contentLabel={t('notebook.toc')}
         size="lg"
         panelClassName="p-4"
       >
@@ -576,7 +577,7 @@ function CommentItem({
 }) {
   const { showConfirm, ConfirmUI } = useConfirm();
   const { showAlert, AlertUI } = useAlert();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const profile = useContext(ProfileContext);
   const commenterName = comment.user?.username || comment.guestName || t("anonymous");
   const commenterAvatar = comment.user?.avatar || "/avatar.png";
@@ -622,7 +623,7 @@ function CommentItem({
           )}
           <div className="flex-1 w-0" />
           <span
-            title={new Date(comment.createdAt).toLocaleString()}
+            title={new Date(comment.createdAt).toLocaleString(i18n.resolvedLanguage || 'zh-CN')}
             className="shrink-0 text-sm text-gray-400"
           >
             {timeago(comment.createdAt)}

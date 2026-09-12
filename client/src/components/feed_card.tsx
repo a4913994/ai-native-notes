@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { timeago } from "../utils/timeago";
 import { HashTag } from "./hashtag";
 import { useContext, useEffect, useRef } from "react";
-import { NotebookContext } from "./notebook-shell";
+import { NotebookContext } from "./notebook-context";
 import { drawBlurhashToCanvas } from "../utils/blurhash";
 import { parseImageUrlMetadata } from "../utils/image-upload";
 import { useImageLoadState } from "../utils/use-image-load-state";
@@ -138,11 +138,11 @@ export function FeedCard({ id, href, title, avatar, draft, listed, top, summary,
             <div className={activeVariant === "editorial" ? "px-2 pb-2" : ""}>
                 <h1 className={styles.title}>{title}</h1>
                 <p className={`space-x-2 ${styles.meta}`}>
-                    <span title={new Date(createdAt).toLocaleString()}>
+                    <span title={new Date(createdAt).toLocaleString(i18n.resolvedLanguage || 'zh-CN')}>
                         {createdAt === updatedAt ? timeago(createdAt) : t('feed_card.published$time', { time: timeago(createdAt) })}
                     </span>
                     {createdAt !== updatedAt &&
-                        <span title={new Date(updatedAt).toLocaleString()}>
+                        <span title={new Date(updatedAt).toLocaleString(i18n.resolvedLanguage || 'zh-CN')}>
                             {t('feed_card.updated$time', { time: timeago(updatedAt) })}
                         </span>
                     }

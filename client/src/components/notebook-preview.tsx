@@ -1,12 +1,12 @@
-// Loaded only by the local development preview. These examples never enter D1 or RSS.
-import { useEffect } from "react";
-import { Helmet } from "react-helmet";
-import { useTranslation } from "react-i18next";
-import { Link, useSearch } from "wouter";
-import { useSiteConfig } from "../hooks/useSiteConfig";
-import { FeedCard } from "./feed_card";
-import { Markdown } from "./markdown";
-
+// Development-only data adapter; shares the real home layout and never writes to D1.
+import { useEffect } from 'react';
+import { Helmet } from 'react-helmet';
+import { useTranslation } from 'react-i18next';
+import { Link, useSearch } from 'wouter';
+import { useSiteConfig } from '../hooks/useSiteConfig';
+import { readHomeQuery, homeLink } from '../utils/home-query';
+import { NotebookHome } from './notebook-home';
+import { Markdown } from './markdown';
 const samples = [
   { title: "从一个小工具开始，理解 AI Native", summary: "让 AI 参与实际工作流程，从一个可以运行、可以验证的小工具开始。", tags: ["AI Native", "工程实践"], content: "## 从问题开始\n\n先选择一个明确的小问题：整理笔记、检查数据，或生成重复的代码。记录输入、期望输出，以及判断结果是否正确的方法。\n\n## 留下验证步骤\n\n```typescript\nconst note = { title: 'A small experiment', verified: false };\nconsole.log(note);\n```\n\n这是一篇用于查看中文正文、标题和代码排版的本地示例。" },
   { title: "Building a small, useful thing", summary: "Start with one problem, build the smallest working version, and write down what you learn.", tags: ["English", "项目记录"], content: "## Start small\n\nChoose one problem and describe what a useful result looks like. Build a version you can try, then keep a short record of what worked and what needs to change.\n\n> A working example is a useful starting point for the next question.\n\nThis is a local typography example, not a published project report." },
@@ -18,32 +18,18 @@ const samples = [
 export default function NotebookPreview() {
   const { t } = useTranslation();
   const site = useSiteConfig();
-  const query = new URLSearchParams(useSearch());
-  const sampleId = query.get("sample");
+  const search = useSearch();
+  const query = new URLSearchParams(search);
+  const sampleId = query.get('sample');
   const sample = sampleId === null ? undefined : samples[Number(sampleId)];
-  useEffect(() => { window.scrollTo(0, 0); }, [sampleId]);
-  return <main>
-    <Helmet><title>{`${site.name} · ${t("notebook.preview_sample")}`}</title><meta name="robots" content="noindex" /></Helmet>
-    {sample ? <>
-      <p className="notebook-preview-label">{t("notebook.preview_label")}</p>
-      <article className="notebook-article"><h1>{sample.title}</h1><Markdown content={sample.content} /></article>
-      <Link className="notebook-link" href="/?preview=1">← {t("notebook.preview_back")}</Link>
-    </> : <>
-      <section className="notebook-intro">
-        <p>{t("notebook.hello")}</p>
-        <p>{site.description} {t("notebook.intro")}</p>
-        <p>{t("notebook.subscribe_before")}<a className="notebook-link" href="/rss.xml">{t("notebook.subscribe_link")}</a>{t("notebook.subscribe_after")}</p>
-      </section>
-      <section aria-labelledby="preview-notes-heading">
-        <div className="notebook-section-heading"><h2 id="preview-notes-heading">{t("notebook.recent")} <small>· {t("notebook.preview_sample")}</small></h2></div>
-        {samples.map((post, index) => <FeedCard key={index} id={`preview-${index}`} href={`/?preview=1&sample=${index}`} title={post.title} summary={post.summary} hashtags={post.tags.map((name, id) => ({ id, name }))} createdAt={new Date(Date.UTC(2026, 8, 12 - index))} updatedAt={new Date(Date.UTC(2026, 8, 12 - index))} />)}
-      </section>
-      <section className="notebook-topic-index">
-        <p><a className="notebook-link" href="/rss.xml">{t("notebook.subscribe_link")}</a></p>
-        <h2>{t("notebook.browse_tags")}</h2>
-        <div className="notebook-tags">{["AI Native", "工程实践", "项目记录", "中文", "English"].map(name => <Link key={name} href={`/hashtag/${encodeURIComponent(name)}`}>#{name}</Link>)}</div>
-      </section>
-    </>}
-    <p className="notebook-preview-label">{t("notebook.preview_label")} · <Link className="notebook-link" href="/">{t("notebook.preview_exit")}</Link></p>
+  const {page,limit,tag} = readHomeQuery(search,site.pageSize);
+  useEffect(() => {window.scrollTo(0,0);},[sampleId,page,tag]);
+  if (sample) return <main>
+    <Helmet><title>{sample.title} · {site.name}</title><meta name="robots" content="noindex" /></Helmet>
+    <p className="notebook-preview-label">{t('notebook.preview_label')}</p>
+    <article className="notebook-article"><h2>{sample.title}</h2><Markdown content={sample.content} /></article>
+    <Link className="notebook-link" href={homeLink(search,{sample:undefined})}>← {t('notebook.preview_back')}</Link>
   </main>;
+  const rows = samples.map((post,index) => ({id:'preview-'+index,href:homeLink(search,{sample:index}),title:post.title,summary:post.summary,hashtags:post.tags.map((name,id)=>({id,name})),createdAt:new Date(Date.UTC(2026,8,12-index)),updatedAt:new Date(Date.UTC(2026,8,12-index))})).filter(post=>!tag||post.hashtags.some(value=>value.name===tag));
+  return <NotebookHome preview status="ready" feeds={{size:rows.length,data:rows.slice((page-1)*limit,page*limit),hasNext:rows.length>page*limit}} />;
 }

@@ -1,0 +1,9 @@
+.toolbar-menu { position: relative; }
+.toolbar-trigger { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-width: 44px; min-height: 44px; padding: 0 8px; border-radius: 8px; color: inherit; font-size: 15px; background: transparent; cursor: pointer; }
+.toolbar-trigger:hover, .toolbar-trigger[aria-expanded="true"] { background: rgb(var(--rin-text-rgb) / .07); }
+.toolbar-trigger i { font-size: 20px; }
+.toolbar-trigger span { font-size: 12px; }
+.toolbar-panel { position: absolute; right: 0; top: calc(100% + 8px); z-index: 100; min-width: 180px; padding: 6px; border: 1px solid rgb(var(--rin-text-rgb) / .12); border-radius: 12px; background: rgb(var(--rin-surface-rgb)); color: rgb(var(--rin-text-rgb)); box-shadow: 0 8px 30px #0002; }
+.toolbar-panel button { display: flex; justify-content: space-between; align-items: center; gap: 14px; width: 100%; min-height: 44px; border-radius: 7px; text-align: left; font: inherit; font-size: 14px; padding: 8px 12px; }
+.toolbar-panel button:hover, .toolbar-panel button:focus-visible { background: rgb(var(--rin-text-rgb) / .07); }
+.toolbar-menu :focus-visible { outline: 2px solid #36849d; outline-offset: 2px; }

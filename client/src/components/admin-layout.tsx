@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "wouter";
 import { useSiteConfig } from "../hooks/useSiteConfig";
 import { ImageWithFallback } from "./image-with-fallback";
+import { ThemeSwitch } from "./toolbar-controls";
 
 function AdminNavItem({
   href,
@@ -48,6 +49,7 @@ export function AdminLayout({
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 lg:flex-row lg:px-6">
         <aside className="w-full shrink-0 lg:sticky lg:top-6 lg:w-72 lg:self-start">
           <div className="rounded-2xl border border-black/10 bg-w p-5 dark:border-white/10">
+            <div className="flex justify-end"><ThemeSwitch /></div>
             <Link href="/" className="flex items-center gap-4 rounded-xl px-2 py-2 transition-colors hover:bg-neutral-50 dark:hover:bg-white/5">
               {siteConfig.avatar ? (
                 <ImageWithFallback src={siteConfig.avatar} alt={siteConfig.name} className="h-12 w-12 rounded-2xl border border-black/10 dark:border-white/10" />
