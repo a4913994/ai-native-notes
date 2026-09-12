@@ -18,3 +18,5 @@ Public navigation follows home / newsletter / blog / github / socials, localized
 Keep the upstream MIT license and source history. Blog customizations are intentionally small.
 
 Article reading: comments removed; fixed, collapsible desktop TOC with current-section tracking and reading progress; inline collapsible TOC and bottom progress on smaller screens. Article prose/titles use locally hosted Noto Serif SC Variable under OFL; dates and code retain iA Writer Mono.
+
+Large-screen reading uses a centered 1120–1160px overall frame with a 760–800px text column, 240px reserved TOC and 20px prose. Medium screens use 19px single-column prose; phones retain 18px. Article masthead/navigation/footer align with the reading frame without changing homepage layout.

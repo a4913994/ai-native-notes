@@ -26,3 +26,4 @@ admin_design: shared-notebook-workspace
 article_comments: hidden
 article_font: Noto Serif SC Variable
 article_navigation: fixed-desktop-sidebar-and-inline-mobile-contents
+article_layout: centered-body-and-toc-frame

@@ -29,3 +29,61 @@
   .reading-mobile-progress .reading-meter { margin: 0 auto; max-width: 640px; }
   .notebook-shell:has(.reading-mobile-progress) .notebook-footer { padding-bottom: 64px; }
 }
+
+/* Article pages have one centered reading frame, including the reserved TOC rail. */
+.notebook-shell:has(.notebook-article-layout) {
+  --reading-frame: 784px;
+  --reading-pad: 24px;
+  --reading-rail: 240px;
+  --reading-gap: 72px;
+}
+@media (min-width: 700px) {
+  .notebook-shell:has(.notebook-article-layout) > .notebook-wrap,
+  .notebook-shell:has(.notebook-article-layout) > .notebook-masthead {
+    max-width: var(--reading-frame);
+    padding-inline: var(--reading-pad);
+  }
+  .notebook-shell:has(.notebook-article-layout) > .notebook-masthead { padding-top: 28px; padding-bottom: 16px; }
+  .notebook-shell:has(.notebook-article-layout) .notebook-site-title { font-size: 25px; margin-bottom: 6px; }
+  .notebook-shell:has(.notebook-article-layout) .notebook-identity p { font-size: 14px; }
+  .notebook-shell:has(.notebook-article-layout) .notebook-avatar { width: 48px; height: 48px; }
+  .notebook-shell .notebook-article .toc-content { font-size: 19px; line-height: 1.85; }
+  .notebook-shell .notebook-article-header h1 { font-size: 36px; line-height: 1.45; text-wrap: balance; }
+  .notebook-article-header::after { margin: 28px 0 32px; width: 72px; opacity: .6; }
+  .notebook-shell .notebook-article .toc-content h2 { font-size: 28px; margin-top: 1.6em; }
+  .notebook-shell .notebook-article .toc-content h3 { font-size: 23px; margin-top: 1.5em; }
+  .notebook-shell .notebook-article .toc-content > :first-child { margin-top: 0; }
+  .notebook-shell .notebook-article .toc-content p { margin-block: 1em; }
+  .notebook-shell .notebook-article .toc-content pre { font-size: 15px; line-height: 1.65; }
+}
+@media (min-width: 1200px) {
+  .notebook-shell:has(.notebook-article-layout) { --reading-frame: 1120px; }
+  .notebook-shell:has(.notebook-article-layout) > .notebook-masthead {
+    padding-right: calc(var(--reading-pad) + var(--reading-gap) + var(--reading-rail));
+  }
+  .notebook-shell:has(.notebook-article-layout) .notebook-topbar-inner {
+    max-width: var(--reading-frame); padding-inline: var(--reading-pad);
+  }
+  .notebook-shell:has(.notebook-article-layout) .notebook-navigation { justify-self: start; }
+  .notebook-shell:has(.notebook-article-layout) .notebook-content,
+  .notebook-shell:has(.notebook-article-layout) .notebook-footer {
+    width: calc(100% - var(--reading-gap) - var(--reading-rail));
+  }
+  .reading-sidebar {
+    left: calc(50% + var(--reading-frame) / 2 - var(--reading-pad) - var(--reading-rail));
+    top: 212px; width: var(--reading-rail); max-height: calc(100dvh - 236px);
+  }
+  .reading-sidebar nav { max-height: max(44px, calc(100dvh - 380px)); }
+  .notebook-shell .notebook-article .toc-content { font-size: 20px; line-height: 1.85; }
+  .notebook-shell .notebook-article-header h1 { font-size: 40px; }
+}
+@media (min-width: 1600px) {
+  .notebook-shell:has(.notebook-article-layout) { --reading-frame: 1160px; }
+  .notebook-shell .notebook-article-header h1 { font-size: 42px; }
+}
+@media (min-width: 1200px) and (max-height: 600px) {
+  .reading-sidebar { top: 192px; max-height: calc(100dvh - 208px); }
+  .reading-sidebar nav { max-height: max(44px, calc(100dvh - 345px)); }
+  .reading-sidebar-heading { margin-bottom: 8px; }
+  .reading-meter { margin-top: 16px; }
+}

@@ -1,5 +1,13 @@
 # Implementation status
 
+## Large-screen reading refinement — 2026-09-12
+
+- Measured the previous 1920px viewport: 640px body at 18px with an additional sidebar on the right, shifting the combined reading area away from the viewport center.
+- Centered the complete reading frame, with body/TOC columns reserved together. Body width is 760px on 1200–1599px screens and 800px at 1600px+, with 20px/1.85 prose, fluid title hierarchy and aligned masthead/navigation/footer. Compact article identity and a left-aligned title divider reduce scattered whitespace. Homepage styling remains independent.
+- Intermediate screens use up to 736px body / 19px text and an inline TOC; phones retain 18px text. Low-height desktops have a higher TOC position and a separately scrollable list.
+- Browser measurements at 390, 768, 1024, 1200, 1440, 1920 and 2560px confirm no horizontal overflow; desktop body/TOC use the same centered frame. English and Chinese real article layouts inspected.
+- Client/server/CLI type checks and production frontend build pass. Published Pages deployment `b1bc15b9`; live Chrome confirms 800px / 20px English prose at 1920px and 760px / 20px Chinese prose at 1440x600, with the fixed sidebar fully visible and no horizontal overflow. This CSS-only update leaves article data and backend unchanged.
+
 ## Reading experience update — 2026-09-12
 
 - Removed article comment UI and its fetches; disabled the existing comment/guest-comment display settings in local and production config without deleting stored comments or changing upstream API routes.
