@@ -28,7 +28,8 @@ permissions:
 jobs:
   prepare:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    # Enable the upstream deploy after its production vars/secrets are set.
+    if: ${{ github.event_name == 'workflow_dispatch' || (vars.CLOUDFLARE_AUTO_DEPLOY == 'true' && github.event.workflow_run.conclusion == 'success') }}
     outputs:
       is_production: ${{ steps.meta.outputs.is_production }}
       pr_number: ${{ steps.meta.outputs.pr_number }}
@@ -213,6 +214,7 @@ jobs:
           ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET || '' }}
+          NEWS_SYNC_TOKEN: ${{ secrets.NEWS_SYNC_TOKEN || '' }}
           WEBHOOK_URL: ${{ vars.WEBHOOK_URL || '' }}
           RSS_TITLE: ${{ vars.RSS_TITLE || '' }}
           RSS_DESCRIPTION: ${{ vars.RSS_DESCRIPTION || '' }}

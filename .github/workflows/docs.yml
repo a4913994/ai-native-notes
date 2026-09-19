@@ -21,6 +21,8 @@ concurrency:
 jobs:
   # Build job
   build:
+    # Rspress is upstream documentation, separate from the Cloudflare blog.
+    if: ${{ vars.RSPRESS_PAGES_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

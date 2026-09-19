@@ -3,6 +3,7 @@ import asyncio
 from datetime import datetime, timezone
 import importlib.util
 import json
+import logging
 import os
 from pathlib import Path
 import sys
@@ -24,6 +25,8 @@ class Runner:
         self.last_fetch_report = N(status='failure' if scenario == 'all-failed' else 'partial_failure' if failed else 'success', outcomes=[N(source_name='rss', status='failure' if failed else 'success')])
 
     async def fetch_all_sources(self, start):
+        if scenario == 'swallowed-failure':
+            logging.getLogger('src.scrapers.reddit').warning('Reddit RSS fallback failed for r/%s: %s', 'Example', 'https://secret.example/?key=PRIVATE')
         return [] if scenario == 'empty' else [item]
 
     def merge_cross_source_duplicates(self, items):
@@ -79,7 +82,8 @@ with tempfile.TemporaryDirectory() as temporary, patch.dict(sys.modules, modules
         payload = json.loads(output.read_text(encoding='utf-8'))
         adapter.validate_artifact(payload)
         assert payload['status'] == ('empty' if scenario == 'empty' else 'ready')
-        assert bool(payload['sourceWarnings']) == (scenario == 'partial')
+        assert bool(payload['sourceWarnings']) == (scenario in ('partial', 'swallowed-failure'))
+        assert 'PRIVATE' not in json.dumps(payload)
         payload['date'] = '2000-01-01'
         try:
             adapter.validate_artifact(payload)

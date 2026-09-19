@@ -66,7 +66,7 @@ export function NotebookShell({ children, tools, navigation, admin = false }: {
             <nav className="notebook-desktop-nav" aria-label={navigationLabel}>
               {links.map(([href, label]) => href.startsWith('https://')
                 ? <a key={href} href={href}>{label}</a>
-                : <Link key={href} href={href} aria-current={location === href || (href === '/blog' && (location === '/timeline' || location.startsWith('/feed/') || location.startsWith('/hashtag'))) || (admin && location.startsWith(`${href}/`)) ? 'page' : undefined}>{label}</Link>)}
+                : <Link key={href} href={href} aria-current={location === href || (href === '/news' && location.startsWith('/news/')) || (href === '/blog' && (location === '/timeline' || location.startsWith('/feed/') || location.startsWith('/hashtag'))) || (admin && location.startsWith(`${href}/`)) ? 'page' : undefined}>{label}</Link>)}
             </nav>
             <div className="notebook-mobile-nav"><ToolbarMenu label={navigationLabel} icon="ri-menu-line" items={links.map(([href,label]) => ({label,action:()=>href.startsWith('https://') ? window.location.assign(href) : navigate(href)}))}><span>{t('notebook.navigation_short')}</span></ToolbarMenu></div>
           </div>

@@ -21,6 +21,7 @@ const renv = (name: string, defaultValue?: string) => env(name, defaultValue, tr
 
 const WORKER_SECRET_KEYS = [
   "JWT_SECRET",
+  "NEWS_SYNC_TOKEN",
   "ADMIN_USERNAME",
   "ADMIN_PASSWORD",
   "RIN_GITHUB_CLIENT_ID",

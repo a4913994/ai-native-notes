@@ -26,6 +26,8 @@ Worker Secret：`NEWS_SYNC_TOKEN`，与 GitHub 同名 secret 相同，仅允许�
 
 失败检查 Actions 的步骤和日志。错误日志不作为公开资讯正文；发布后自动匿名读取并核对内容。禁用工作流即可停止更新，历史内容保留。公开仓库无活动 60 天可能被 GitHub 停用 schedule，需检查工作流状态并重新启用。
 
+原上游整站 artifact 自动部署需要 `CLOUDFLARE_AUTO_DEPLOY=true` 才随 Build 启动；Rspress 文档站需要 `RSPRESS_PAGES_ENABLED=true`。本站当前用本地已授权的 `scripts/blog-deploy-oauth.ts` 部署 Cloudflare，未给旧整站 Action 配置 Cloudflare 令牌，避免向上游默认的 `rin` 资源发起部署。每日资讯 Action 独立运行，不受这两个开关影响。
+
 ## 验证与回退
 
 变更后运行 `bun test`、`bun run check`、`bun run build:client`；Python adapter 的离线失败场景由 `bun:test` 调用标准 Python，不引入额外测试框架。

@@ -3,6 +3,7 @@ import argparse
 import asyncio
 from datetime import datetime, timedelta, timezone
 import json
+import logging
 import os
 from pathlib import Path
 import sys
@@ -12,6 +13,22 @@ import urllib.error
 import urllib.request
 
 SHANGHAI = timezone(timedelta(hours=8))
+
+
+class SourceDiagnostics(logging.Handler):
+    """Upstream scrapers sometimes return [] after logging a sub-source failure."""
+    def __init__(self):
+        super().__init__(logging.WARNING)
+        self.failed = set()
+
+    def emit(self, record):
+        template = str(record.msg)
+        terminal = template.startswith(('Error fetching', 'Error parsing', 'Reddit RSS fallback failed', 'Reddit request failed', 'Telegram request failed'))
+        if record.name.startswith('src.scrapers.') and terminal:
+            # Use only an allowlisted source label, never logged URLs or keys.
+            source = record.name.rsplit('.', 1)[-1]
+            label = {'reddit': 'Reddit', 'rss': 'RSS', 'github': 'GitHub', 'telegram': 'Telegram', 'hackernews': 'Hacker News'}.get(source, '其他来源')
+            self.failed.add(f'{label}：部分来源获取失败，已保留其他可用内容')
 
 
 def stamp(value):
@@ -81,8 +98,14 @@ async def generate(root, output):
     await client.complete(user='Return JSON with ok true', system='Connectivity check. Output JSON.')
     with tempfile.TemporaryDirectory(prefix="horizon-news-") as temporary:
         runner = HorizonOrchestrator(config, StorageManager(temporary))
-        items = await runner.fetch_all_sources(start)
-        warnings = source_warnings(runner.last_fetch_report)
+        diagnostics = SourceDiagnostics()
+        logger = logging.getLogger('src.scrapers')
+        logger.addHandler(diagnostics)
+        try:
+            items = await runner.fetch_all_sources(start)
+        finally:
+            logger.removeHandler(diagnostics)
+        warnings = source_warnings(runner.last_fetch_report) + sorted(diagnostics.failed)
         # Exclude future timestamps; the edition records a fixed collection window.
         items = [item for item in items if start <= item.published_at <= end]
         selected = []

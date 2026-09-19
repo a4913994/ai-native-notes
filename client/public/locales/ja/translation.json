@@ -869,17 +869,17 @@
     "no_headings": "見出しはありません"
   },
   "news": {
-    "title": "News",
-    "intro": "A daily digest of technology, engineering and finance. Content is generated in Chinese.",
-    "missing": "No digest for this date.",
-    "latest": "Latest digest",
-    "empty": "The first digest is being prepared.",
-    "pending": "Today’s digest is not available yet. Latest edition: {{date}}.",
-    "generated": "AI generated · Updated",
-    "window": "Collection window",
-    "partial": "Some sources were unavailable",
-    "history": "Past digests",
-    "previous": "Previous",
-    "next": "Next"
+    "title": "ニュース",
+    "intro": "技術ニュース、技術ブログ、金融情報を毎朝更新します。本文は中国語です。",
+    "missing": "この日の日報はまだありません。",
+    "latest": "最新の日報",
+    "empty": "最初の日報を準備中です。",
+    "pending": "本日の日報は未更新です。最新号：{{date}}。",
+    "generated": "AI による自動整理 · 更新",
+    "window": "収集期間",
+    "partial": "一部の情報源を取得できませんでした",
+    "history": "過去の日報",
+    "previous": "前のページ",
+    "next": "次のページ"
   }
 }
