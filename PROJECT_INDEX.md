@@ -6,6 +6,7 @@ Live site: https://aifield.cc · Login: https://aifield.cc/login. The legacy Pag
 
 - [Local setup and operations](BLOG_SETUP.md)
 - [Implementation and verification status](tracking/status.md)
+- [Daily Horizon news operations](docs/horizon-news-operations.md): independent `/news` section, GitHub schedule and publication retry.
 - [Project identity and pinned upstream](project.yaml)
 - [About draft](content/about.draft.md)
 - [.env.blog.example](.env.blog.example): local defaults; real credentials live in ignored `.env.local`.

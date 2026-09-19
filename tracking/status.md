@@ -1,5 +1,14 @@
 # Implementation status
 
+## Horizon daily news — 2026-09-19
+
+- Deployed independent `/news` and `/news/YYYY-MM-DD` pages and `/api/news` read/sync APIs. D1 migration 0013 adds a separate day/language-unique digest table. Production D1 was exported before deployment to ignored `backups/before-horizon-20260919.sql`; original five public articles remain independent.
+- Enabled `Horizon Daily News` on GitHub main: Shanghai 07:37 generation, 09:17 check/retry, Chinese DeepSeek output, complete upstream source configuration and public LWN fallback. Secrets were installed in GitHub and Worker without committing credentials. Pinned Horizon commit is in the workflow and operations document.
+- Actual cloud generation/publish/read-back succeeded in runs 35432728134 and 35433101653. Latest accepted generation selected 12 of 42 items; Reddit sub-source failures are exposed as a partial-source notice. Normal retry skips an existing day; artifact-only retry is available without AI calls.
+- Frontend type checks/build and backend integration tests passed. Browser inspection confirmed desktop anchor navigation, expandable source references, direct dated route, and no horizontal overflow at 390px. Automated tests cover dedicated authorization, concurrent upserts, stale update protection, partial/all-source failures, empty days, AI/enrichment failures, old output rejection and HTML sanitization.
+- Upstream whole-site and Rspress deployment workflows now require explicit enablement variables because this blog deploys via the existing local OAuth script; they previously attempted unconfigured upstream defaults. New daily news publishing is independent of those workflows.
+- First scheduled execution remains a separate acceptance step; a one-time follow-up is arranged for 2026-09-20 after the morning retry window. See `docs/horizon-news-operations.md` for manual publishing, recovery and disabling updates.
+
 ## Custom domain and free email routing — 2026-09-12
 
 - User purchased aifield.cc. Bound apex and www to the existing Pages project; both domains and TLS certificates are active. Production public origin is now https://aifield.cc, and new image URLs use its same-origin `/api/blob` endpoint.

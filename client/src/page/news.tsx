@@ -6,6 +6,7 @@ import type { NewsDigest, NewsListResponse } from '@rin/api';
 import { endpoint } from '../config';
 import { Markdown } from '../components/markdown';
 import { useSiteConfig } from '../hooks/useSiteConfig';
+import { prepareNewsMarkdown } from '../utils/news-markdown';
 import './news.css';
 
 export function NewsPage({ date }: { date?: string }) {
@@ -47,7 +48,7 @@ export function NewsPage({ date }: { date?: string }) {
       <article>
         <header><h2>{digest.title}</h2><p className="news-meta">{t('news.generated')} · {time(digest.updatedAt)} UTC+8</p><p className="news-meta">{t('news.window')}：{time(digest.windowStart)} — {time(digest.windowEnd)}</p></header>
         {digest.sourceWarnings.length > 0 && <details className="news-notice"><summary>{t('news.partial')}</summary><ul>{digest.sourceWarnings.map(w => <li key={w}>{w}</li>)}</ul></details>}
-        <div className="news-prose"><Markdown content={digest.content.replace(/^# [^\n]+\n+/, '')} untrusted /></div>
+        <div className="news-prose"><Markdown content={prepareNewsMarkdown(digest.content)} untrusted /></div>
       </article>
     </>}
     {status === 'ready' && <nav className="news-history" aria-label={t('news.history')}><h2>{t('news.history')}</h2>

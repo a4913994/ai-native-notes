@@ -23,7 +23,13 @@ authentication: admin-password
 hosting: cloudflare-pages-workers-d1-r2
 content_status: five-published-starter-posts-and-private-about-draft
 public_design: compact-masthead-reading-column
-public_navigation: [home, newsletter, blog, github, socials]
+public_navigation: [home, newsletter, blog, news, github, socials]
+news_path: /news
+news_workflow: Horizon Daily News
+news_schedule_timezone: Asia/Shanghai
+news_schedule: ["07:37", "09:17"]
+news_source: Thysrael/Horizon@0d7b8f0656974271ce3129026513cfe546c66058
+news_language: zh
 public_utilities: homepage-top-right-only
 archive_path: /blog
 design_reference: https://cassidoo.co/
