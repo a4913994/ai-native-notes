@@ -1,6 +1,7 @@
 """Pinned Horizon adapter. No local .env or old generated files are consumed."""
 import argparse
 import asyncio
+import html
 from datetime import datetime, timedelta, timezone
 import json
 import logging
@@ -11,9 +12,37 @@ import sys
 import tempfile
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 
 SHANGHAI = timezone(timedelta(hours=8))
+FEATURED_LIMIT = 20
+
+
+def importance(item):
+    analysis = getattr(getattr(item, 'processing', None), 'analysis', None)
+    score = getattr(analysis, 'score', None)
+    return score if score is not None else -1
+
+
+def render_all_items(items, summarizer):
+    featured, remaining = items[:FEATURED_LIMIT], items[FEATURED_LIMIT:]
+    intro = f'共收录 {len(items)} 条资讯，按重要程度排序；前 {len(featured)} 条展开阅读，其余 {len(remaining)} 条收起为标题列表。'
+    parts = [f'> {intro}\n\n## 重点资讯\n\n']
+    for index, item in enumerate(featured, 1):
+        # Pinned upstream formatter preserves enriched Chinese text and citations.
+        parts.append(summarizer._format_item(item, {'discussion': '社区讨论', 'references': '参考链接', 'tags': '标签'}, 'zh', index, heading_level=3, anchor_id=f'item-featured-{index}'))
+    if remaining:
+        parts.append(f'\n\n<details>\n<summary>其余资讯（{len(remaining)} 条）· 展开标题列表</summary>\n\n<ul>\n')
+        for index, item in enumerate(remaining, len(featured) + 1):
+            url = str(item.url)
+            # Render source titles literally, with no Markdown/HTML injection.
+            title = html.escape(item.title, quote=True)
+            if urllib.parse.urlsplit(url).scheme.lower() in ('http', 'https'):
+                title = f'<a href="{html.escape(url, quote=True)}">{title}</a>'
+            parts.append(f'<li>{index}. {title}</li>\n')
+        parts.append('</ul>\n\n</details>\n')
+    return ''.join(parts), intro
 
 
 def redact_apify_logs():
@@ -184,26 +213,29 @@ async def generate(root, output):
         items = [item for item in items if start <= item.published_at <= end and english_extra_item(item)]
         selected = []
         if items:
-            analyzed = await runner.analyze_items(runner.merge_cross_source_duplicates(items))
+            analyzed = await runner.analyze_items(items)
             valid = [item for item in analyzed if item.processing and item.processing.analysis and item.processing.analysis.score is not None]
             if not valid:
                 raise RuntimeError("All AI analyses failed; refusing an empty success")
             if len(valid) != len(analyzed):
-                warnings.append(f"AI 分析失败：{len(analyzed) - len(valid)} 条已跳过")
-            selected = (await runner.select_digest_items(valid)).items
+                warnings.append(f"AI 分析失败：{len(analyzed) - len(valid)} 条保留原文标题，排在列表末尾")
+            # Keep every collected item. Profile thresholds and topic balancing
+            # must no longer discard lower-ranked headlines.
+            ranked = sorted(analyzed, key=importance, reverse=True)
+            selected = ranked[:FEATURED_LIMIT]
             if selected:
                 enriched = await runner.enrich_items(selected)
-                if enriched.failed_count == len(selected):
-                    raise RuntimeError("All enrichment failed; previous edition is preserved")
                 if enriched.failed_count:
-                    warnings.append(f"背景分析失败：{enriched.failed_count} 条已跳过")
-                    selected = [item for item in selected if item.id not in enriched.failed_ids]
+                    warnings.append(f"背景分析失败：{enriched.failed_count} 条保留初步摘要和原文链接")
         if not selected and warnings:
             raise RuntimeError("No publishable items and incomplete sources/analysis; refusing empty success")
-        content = await DailySummarizer(profile_names=runner.profiles.names, profile_order=config.digest.profile_order).generate_summary(selected, day, len(items), language="zh") if selected else "今天没有符合筛选标准的新资讯。\n\n所有已配置来源已完成检查。"
+        if selected:
+            content, summary = render_all_items(ranked, DailySummarizer(profile_names=runner.profiles.names, profile_order=config.digest.profile_order))
+        else:
+            content, summary = '今天没有采集到新资讯。\n\n所有已配置来源已完成检查。', '今天没有采集到新资讯。'
         if not content.strip():
             raise RuntimeError("Empty generated Markdown")
-        payload = {"date": day, "language": "zh", "title": f"每日资讯 · {day}", "summary": f"从 {len(items)} 条内容中筛选出 {len(selected)} 条资讯。", "content": content, "status": "ready" if selected else "empty", "windowStart": stamp(start), "windowEnd": stamp(end), "generatedAt": stamp(datetime.now(timezone.utc)), "sourceWarnings": warnings}
+        payload = {"date": day, "language": "zh", "title": f"每日资讯 · {day}", "summary": summary, "content": content, "status": "ready" if selected else "empty", "windowStart": stamp(start), "windowEnd": stamp(end), "generatedAt": stamp(datetime.now(timezone.utc)), "sourceWarnings": warnings}
         output.parent.mkdir(parents=True, exist_ok=True)
         temporary_output = output.with_suffix(".tmp")
         temporary_output.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")

@@ -8,6 +8,16 @@ import { newsMarkdownSchema } from '../news-markdown-schema';
 import { prepareNewsMarkdown } from '../../utils/news-markdown';
 
 describe('Untrusted news Markdown', () => {
+  it('keeps featured summaries visible and the remaining linked headlines collapsed', () => {
+    const content = '## 重点资讯\n\n### [重点](https://example.com/featured)\n\n摘要\n\n<details>\n<summary>其余资讯（1 条）</summary>\n\n<ul>\n<li><a href="https://example.com/rest">标题</a></li>\n</ul>\n\n</details>';
+    const html = renderToStaticMarkup(<ReactMarkdown rehypePlugins={[rehypeRaw, [rehypeSanitize, newsMarkdownSchema]]}>{content}</ReactMarkdown>);
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    expect(container.querySelector('details')?.open).toBe(false);
+    expect(container.querySelector('details a')?.getAttribute('href')).toBe('https://example.com/rest');
+    expect(container.querySelector('h3')?.closest('details')).toBeNull();
+    expect(container.querySelector('p')?.textContent).toBe('摘要');
+  });
   it('hides internal references without deleting real source links or changing stored input', () => {
     const raw = '# Horizon - 2026-09-19\n\nTom&\\#x27;s 报道（tool-2-1、tool-2-2）。[来源](https://example.com)';
     const result = prepareNewsMarkdown(raw);

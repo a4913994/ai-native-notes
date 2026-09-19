@@ -2,6 +2,7 @@
 import asyncio
 from datetime import datetime, timezone
 import importlib.util
+import html
 import json
 import logging
 import os
@@ -19,7 +20,7 @@ guard_twitter = adapter.guard_twitter_empty_results
 adapter.guard_twitter_empty_results = lambda module: None
 configure_extra = adapter.configure_extra_scrapers
 adapter.configure_extra_scrapers = lambda module, cutoff: None
-item = N(id='one', published_at=datetime.now(timezone.utc), processing=N(analysis=N(score=8)))
+item = N(id='one', title='Example', url='https://example.com', published_at=datetime.now(timezone.utc), processing=N(analysis=N(score=8)))
 
 
 class Runner:
@@ -29,6 +30,8 @@ class Runner:
         self.last_fetch_report = N(status='failure' if scenario == 'all-failed' else 'partial_failure' if failed else 'success', outcomes=[N(source_name='rss', status='failure' if failed else 'success')])
 
     async def fetch_all_sources(self, start):
+        if scenario == 'all-headlines':
+            return [N(id=str(i), title=f'Headline {i} <script>alert(1)</script>', url=f'https://example.com/{i}', published_at=item.published_at, processing=N(analysis=N(score=i / 3 if i else None))) for i in range(25)]
         if scenario == 'twitter-failure':
             logging.getLogger('src.scrapers.twitter').error('Failed to fetch Apify dataset example: HTTP 403')
         if scenario == 'swallowed-failure':
@@ -44,9 +47,12 @@ class Runner:
         return items
 
     async def select_digest_items(self, items):
-        return N(items=items)
+        raise AssertionError('The full feed must not apply the old selection threshold')
 
     async def enrich_items(self, items):
+        if scenario == 'all-headlines':
+            assert len(items) == 20
+            assert items[0].id == '24' and items[-1].id == '5'
         return N(failed_count=1 if scenario == 'enrichment-failed' else 0, failed_ids=['one'] if scenario == 'enrichment-failed' else [])
 
 
@@ -61,6 +67,9 @@ class Summarizer:
 
     async def generate_summary(self, *args, **kwargs):
         return '## 科技新闻\n\n[资讯](https://example.com)'
+
+    def _format_item(self, item, *args, **kwargs):
+        return f'### [{html.escape(item.title)}]({item.url})\n\nDetailed summary\n\n'
 
 
 modules = {'src.orchestrator': N(HorizonOrchestrator=Runner), 'src.storage.manager': N(StorageManager=lambda path: path), 'src.models': N(Config=N(model_validate=lambda data: N(ai=N(), digest=N(profile_order=['tech-news'])))), 'src.ai.summarizer': N(DailySummarizer=Summarizer), 'src.ai.client': N(create_ai_client=lambda config: Client())}
@@ -122,7 +131,7 @@ with tempfile.TemporaryDirectory() as temporary, patch.dict(sys.modules, modules
             handler = adapter.SourceDiagnostics()
             handler.emit(record)
             assert any('Twitter' in warning for warning in handler.failed)
-    elif scenario in ('all-failed', 'ai-failed', 'enrichment-failed'):
+    elif scenario in ('all-failed', 'ai-failed'):
         try:
             asyncio.run(adapter.generate(root, output))
             raise AssertionError('Failure was reported as success')
@@ -141,7 +150,15 @@ with tempfile.TemporaryDirectory() as temporary, patch.dict(sys.modules, modules
         payload = json.loads(output.read_text(encoding='utf-8'))
         adapter.validate_artifact(payload)
         assert payload['status'] == ('empty' if scenario == 'empty' else 'ready')
-        assert bool(payload['sourceWarnings']) == (scenario in ('partial', 'swallowed-failure', 'twitter-failure'))
+        assert bool(payload['sourceWarnings']) == (scenario in ('partial', 'swallowed-failure', 'twitter-failure', 'enrichment-failed', 'all-headlines'))
+        if scenario == 'all-headlines':
+            assert '共收录 25 条' in payload['summary']
+            assert payload['content'].count('Detailed summary') == 20
+            assert payload['content'].count('<li>') == 5
+            assert '<details>' in payload['content'] and '<details open' not in payload['content']
+            assert '<script>' not in payload['content']
+            for i in range(25):
+                assert f'https://example.com/{i}' in payload['content']
         assert 'PRIVATE' not in json.dumps(payload)
         payload['date'] = '2000-01-01'
         try:
