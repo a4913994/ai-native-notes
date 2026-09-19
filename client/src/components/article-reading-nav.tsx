@@ -5,12 +5,13 @@ import './article-reading.css';
 
 type Heading = {id: string; text: string; level: number; element: HTMLElement};
 
-export function ArticleReadingNav({articleRef, contentKey}: {articleRef: RefObject<HTMLElement>; contentKey: string}) {
+export function ArticleReadingNav({articleRef, contentKey, news = false}: {articleRef: RefObject<HTMLElement>; contentKey: string; news?: boolean}) {
   const {t} = useTranslation();
   const [headings, setHeadings] = useState<Heading[]>([]);
   const [{progress, active}, setPosition] = useState({progress: 0, active: -1});
   const [hidden, setHidden] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [returnY, setReturnY] = useState<number | null>(null);
   const mobileToggle = useRef<HTMLButtonElement>(null);
   const desktopContents = useRef<HTMLDivElement>(null);
 
@@ -29,10 +30,13 @@ export function ArticleReadingNav({articleRef, contentKey}: {articleRef: RefObje
     if (!article) return;
     setPosition({progress: 0, active: -1});
     setMobileOpen(false);
+    setReturnY(null);
     const seen = new Set<string>();
-    const items = Array.from(article.querySelectorAll<HTMLElement>('.toc-content :is(h1,h2,h3,h4,h5,h6)')).map((element, index) => {
+    const items = Array.from(article.querySelectorAll<HTMLElement>(news ? '.toc-content h3' : '.toc-content :is(h1,h2,h3,h4,h5,h6)')).map((element, index) => {
       const text = element.textContent?.trim() || `${index + 1}`;
-      let id = text;
+      const oldAnchor = element.previousElementSibling?.querySelector<HTMLAnchorElement>('a[id]');
+      let id = oldAnchor?.id || element.id || text;
+      if (oldAnchor) oldAnchor.removeAttribute('id');
       for (let suffix = 2; seen.has(id); suffix++) id = `${text}-${suffix}`;
       seen.add(id);
       element.id = id;
@@ -54,6 +58,17 @@ export function ArticleReadingNav({articleRef, contentKey}: {articleRef: RefObje
     window.addEventListener('scroll', schedule, {passive:true});
     window.addEventListener('resize', schedule);
     update();
+    const onInlineJump = (event: MouseEvent) => {
+      const link = (event.target as Element).closest<HTMLAnchorElement>('a[href^="#"]');
+      if (!link || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      let id: string;
+      try { id = decodeURIComponent(link.hash.slice(1)); } catch { return; }
+      const heading = items.find(item => item.id === id);
+      if (!heading) return;
+      event.preventDefault();
+      jump(heading);
+    };
+    article.addEventListener('click', onInlineJump);
     // Headings are rendered after data arrives; restore direct fragment links then.
     if (window.location.hash) {
       try {
@@ -66,13 +81,13 @@ export function ArticleReadingNav({articleRef, contentKey}: {articleRef: RefObje
       window.cancelAnimationFrame(frame);
       window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
+      article.removeEventListener('click', onInlineJump);
     };
-  }, [articleRef, contentKey]);
+  }, [articleRef, contentKey, news]);
 
-  function navigate(event: React.MouseEvent, heading: Heading, mobile = false) {
-    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    if (mobile) setMobileOpen(false);
+  function jump(heading: Heading) {
+    setReturnY(window.scrollY);
+    setMobileOpen(false);
     window.requestAnimationFrame(() => {
       const offset = (document.querySelector('.notebook-topbar')?.getBoundingClientRect().height || 64) + 24;
       heading.element.focus({preventScroll:true});
@@ -80,10 +95,15 @@ export function ArticleReadingNav({articleRef, contentKey}: {articleRef: RefObje
       window.scrollTo({top: Math.max(0, heading.element.getBoundingClientRect().top + window.scrollY - offset), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
     });
   }
+  function navigate(event: React.MouseEvent, heading: Heading) {
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    jump(heading);
+  }
   const minLevel = Math.min(...headings.map(heading => heading.level));
-  const list = (mobile = false) => <nav aria-label={t('reading.contents')}><ol>
+  const list = () => <nav aria-label={t('reading.contents')}><ol>
     {headings.map((heading, index) => <li key={heading.id} style={{paddingInlineStart: Math.min(heading.level - minLevel, 3) * 12}}>
-      <a href={`#${encodeURIComponent(heading.id)}`} aria-current={index === active ? 'location' : undefined} onClick={event => navigate(event, heading, mobile)}>{heading.text}</a>
+      <a href={`#${encodeURIComponent(heading.id)}`} aria-current={index === active ? 'location' : undefined} onClick={event => navigate(event, heading)}>{heading.text.replace(/\s*⭐️?\s*[\d.?]+\/10$/, '')}</a>
     </li>)}
   </ol>{!headings.length && <p className="reading-empty">{t('reading.no_headings')}</p>}</nav>;
   const meter = <div className="reading-meter">
@@ -96,10 +116,19 @@ export function ArticleReadingNav({articleRef, contentKey}: {articleRef: RefObje
       <div ref={desktopContents} id="reading-desktop-contents" hidden={hidden}>{list()}</div>
       {meter}
     </aside>
-    <div className="reading-mobile-contents" onKeyDown={event => {if (event.key === 'Escape' && mobileOpen) {setMobileOpen(false); mobileToggle.current?.focus();}}}>
-      <button ref={mobileToggle} type="button" aria-expanded={mobileOpen} aria-controls="reading-mobile-contents" onClick={() => setMobileOpen(!mobileOpen)}>{t('reading.contents')} <span aria-hidden="true">{mobileOpen ? '−' : '+'}</span></button>
-      <div id="reading-mobile-contents" hidden={!mobileOpen}>{list(true)}</div>
+    <div className={`reading-mobile-contents${mobileOpen ? ' is-open' : ''}`} onKeyDown={event => {if (event.key === 'Escape' && mobileOpen) {setMobileOpen(false); mobileToggle.current?.focus();}}}>
+      <div id="reading-mobile-contents" hidden={!mobileOpen}><div className="reading-panel-heading"><strong>{t('reading.contents')}</strong><button onClick={() => {setMobileOpen(false); mobileToggle.current?.focus();}} aria-label={t('reading.close')}>×</button></div>{list()}</div>
     </div>
-    <div className="reading-mobile-progress">{meter}</div>
+    <div className="reading-dock" aria-label={t('reading.navigation')}>
+      <div className="reading-dock-context" aria-live="off">{active >= 0 ? `${active + 1} / ${headings.length} · ${headings[active]?.text.replace(/\s*⭐️?\s*[\d.?]+\/10$/, '')}` : t('reading.start')}</div>
+      <div className="reading-dock-actions">
+        <button ref={mobileToggle} className="reading-dock-contents" aria-expanded={mobileOpen} aria-controls="reading-mobile-contents" onClick={() => setMobileOpen(!mobileOpen)}>{t('reading.contents')}</button>
+        <button disabled={active <= 0} onClick={() => jump(headings[active - 1])} aria-label={t('reading.previous_section')}>← <span>{t('reading.previous_short')}</span></button>
+        <button disabled={!headings.length || active >= headings.length - 1} onClick={() => jump(headings[Math.max(0, active + 1)])} aria-label={t('reading.next_section')}><span>{t('reading.next_short')}</span> →</button>
+        {returnY !== null && <button onClick={() => {window.scrollTo({top:returnY, behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});setReturnY(null);}}>{t('reading.return_position')}</button>}
+        <button onClick={() => {setReturnY(window.scrollY);window.scrollTo({top:0, behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});}}>{t('reading.top')}</button>
+        <span className="reading-dock-percent" aria-label={`${t('reading.progress')} ${progress}%`}>{progress}%</span>
+      </div>
+    </div>
   </>;
 }

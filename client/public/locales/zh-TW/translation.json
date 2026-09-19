@@ -866,7 +866,18 @@
     "progress": "閱讀進度",
     "hide": "收起",
     "show": "展開",
-    "no_headings": "本文暫無章節標題"
+    "no_headings": "本文暫無章節標題",
+    "open_original": "在新分頁開啟原文",
+    "external_hint": "原文連結在新分頁開啟，保留目前閱讀位置。",
+    "back": "返回",
+    "close": "關閉目錄",
+    "start": "開始閱讀",
+    "previous_section": "上一則",
+    "next_section": "下一則",
+    "previous_short": "上一則",
+    "next_short": "下一則",
+    "return_position": "返回閱讀",
+    "top": "頂部"
   },
   "news": {
     "title": "資訊",

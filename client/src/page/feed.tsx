@@ -1,4 +1,5 @@
 import { ArticleReadingNav } from "../components/article-reading-nav";
+import { ReadingBack } from '../components/reading-back';
 import "@fontsource-variable/noto-serif-sc";
 import type { Feed } from "@rin/api";
 
@@ -188,6 +189,7 @@ export function FeedPage({ id }: { id: string }) {
           <>
             <ArticleReadingNav key={feed.id} articleRef={articleRef} contentKey={`${feed.id}:${feed.updatedAt}`} />
             <main className="wauto">
+              <ReadingBack fallback="/blog" label={t('notebook.archive_title')} />
               <article ref={articleRef}
                 className="notebook-article rounded-2xl bg-w m-2 px-6 py-4"
                 aria-label={feed.title ?? "Unnamed"}

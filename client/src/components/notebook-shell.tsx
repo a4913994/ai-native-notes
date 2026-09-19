@@ -1,4 +1,4 @@
-import { useContext, useEffect, type ReactNode } from "react";
+import { useContext, type ReactNode } from "react";
 import { Helmet } from "react-helmet";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "wouter";
@@ -29,7 +29,6 @@ export function NotebookShell({ children, tools, navigation, admin = false }: {
   const section = location === '/newsletter' ? 'newsletter' : location === '/socials' ? 'socials' : ['/blog', '/timeline'].includes(location) ? 'archive' : undefined;
   const sectionTitle = section ? t(`notebook.${section}_masthead`) : site.name;
   const sectionDescription = section ? t(`notebook.${section}_description`) : site.localizedDescription;
-  useEffect(() => { window.scrollTo(0, 0); }, [location]);
   const links = navigation || [
     ['/', t('notebook.nav_home')],
     ['/newsletter', t('notebook.nav_newsletter')],

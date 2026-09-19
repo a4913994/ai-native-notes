@@ -866,7 +866,18 @@
     "progress": "Reading progress",
     "hide": "Hide",
     "show": "Show",
-    "no_headings": "No section headings"
+    "no_headings": "No section headings",
+    "open_original": "Open original in a new tab",
+    "external_hint": "Original links open in a new tab, keeping your reading position.",
+    "back": "Back",
+    "close": "Close contents",
+    "start": "Start reading",
+    "previous_section": "Previous section",
+    "next_section": "Next section",
+    "previous_short": "Previous",
+    "next_short": "Next",
+    "return_position": "Return to reading",
+    "top": "Top"
   },
   "news": {
     "title": "News",

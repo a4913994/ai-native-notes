@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useContext } from "react";
+import { lazy, Suspense, useContext } from "react";
 import type { DefaultParams, PathPattern } from "wouter";
 import { Route, Switch } from "wouter";
 import { AdminLayout } from "../components/admin-layout";
@@ -24,12 +24,16 @@ import { QueueStatusPage } from "../page/queue-status";
 import { SearchPage } from "../page/search";
 import { Settings } from "../page/settings";
 import { BlogArchivePage } from "../page/blog-archive";
-import { WritingPage } from "../page/writing";
 import { ProfileContext } from "../state/profile";
 import { tryInt } from "../utils/int";
 import { useTranslation } from "react-i18next";
+import { useReadingHistory } from '../hooks/use-reading-history';
+
+// Keep the editor and its heavy dependencies off public reading routes.
+const WritingPage = lazy(() => import('../page/writing').then(module => ({ default: module.WritingPage })));
 
 export function AppRoutes() {
+  useReadingHistory();
   const { t } = useTranslation();
 
   return (
@@ -195,7 +199,9 @@ function AdminRoute({
     <Route path={path}>
       {(params) => (
         <AdminLayout title={title} description={description}>
-          {typeof content === "function" ? content(params) : content}
+          <Suspense fallback={<p role="status">{t('notebook.loading')}</p>}>
+            {typeof content === "function" ? content(params) : content}
+          </Suspense>
         </AdminLayout>
       )}
     </Route>

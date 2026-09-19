@@ -298,11 +298,16 @@ export function Markdown({ content, untrusted = false }: { content: string; untr
             </li>
           );
         },
-        a({ children, ...props }) {
+        a({ node, children, ...props }) {
+          let external = false;
+          try { external = Boolean(props.href && /^https?:\/\//i.test(props.href) && new URL(props.href).origin !== window.location.origin); } catch { /* Invalid source URL. */ }
           return (
             <a
               className="break-words text-[#0686c8] hover:underline dark:text-[#2590f1] [overflow-wrap:anywhere]"
               {...props}
+              target={external ? '_blank' : undefined}
+              rel={external ? 'noopener noreferrer' : undefined}
+              title={external ? t('reading.open_original') : props.title}
             >
               {children}
             </a>

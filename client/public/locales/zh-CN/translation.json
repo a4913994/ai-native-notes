@@ -866,7 +866,18 @@
     "progress": "阅读进度",
     "hide": "收起",
     "show": "展开",
-    "no_headings": "本文暂无章节标题"
+    "no_headings": "本文暂无章节标题",
+    "open_original": "在新标签页打开原文",
+    "external_hint": "原文链接在新标签页打开，当前阅读位置会保留。",
+    "back": "返回",
+    "close": "关闭目录",
+    "start": "开始阅读",
+    "previous_section": "上一条",
+    "next_section": "下一条",
+    "previous_short": "上一条",
+    "next_short": "下一条",
+    "return_position": "返回阅读",
+    "top": "顶部"
   },
   "news": {
     "title": "资讯",

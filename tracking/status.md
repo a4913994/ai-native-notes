@@ -129,6 +129,8 @@
 
 ## Operational notes
 
+- 2026-09-19：资讯和个人文章加入常驻阅读导航、跳转后返回位置、外链新标签页及浏览器历史滚动／折叠恢复。资讯日期列表分页不再替换正文，使用 30 秒读取缓存；写作入口按需加载。495 项测试与前端构建通过，详见 `docs/reading-experience.md`。
+
 - Upstream Turbo 1.13 may warn that it cannot parse the Bun lockfile while constructing its task graph; all three TypeScript tasks still complete successfully. No dependency upgrade was made solely to hide that warning.
 - Upstream migration tests used URL pathname as a Windows filesystem path; fixed with `fileURLToPath`.
 - RSS unit tests previously contacted a fake S3 hostname and timed out; isolated them with a local R2 stub.
