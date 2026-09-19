@@ -25,10 +25,19 @@ def importance(item):
     return score if score is not None else -1
 
 
+def featured_toc(titles):
+    links = ''.join(f'<li><a href="#item-featured-{index}">{html.escape(title, quote=True)}</a></li>\n' for index, title in enumerate(titles, 1))
+    return f'## 重点资讯目录\n\n<ol>\n{links}</ol>\n\n'
+
+
 def render_all_items(items, summarizer):
     featured, remaining = items[:FEATURED_LIMIT], items[FEATURED_LIMIT:]
     intro = f'共收录 {len(items)} 条资讯，按重要程度排序；前 {len(featured)} 条展开阅读，其余 {len(remaining)} 条收起为标题列表。'
-    parts = [f'> {intro}\n\n## 重点资讯\n\n']
+    titles = []
+    for item in featured:
+        artifact = getattr(getattr(item, 'processing', None), 'artifacts', {}).get('zh')
+        titles.append(artifact.title if artifact else item.title)
+    parts = [f'> {intro}\n\n', featured_toc(titles), '## 重点资讯\n\n']
     for index, item in enumerate(featured, 1):
         # Pinned upstream formatter preserves enriched Chinese text and citations.
         parts.append(summarizer._format_item(item, {'discussion': '社区讨论', 'references': '参考链接', 'tags': '标签'}, 'zh', index, heading_level=3, anchor_id=f'item-featured-{index}'))

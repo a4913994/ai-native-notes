@@ -154,7 +154,9 @@ with tempfile.TemporaryDirectory() as temporary, patch.dict(sys.modules, modules
         if scenario == 'all-headlines':
             assert '共收录 25 条' in payload['summary']
             assert payload['content'].count('Detailed summary') == 20
-            assert payload['content'].count('<li>') == 5
+            assert payload['content'].count('<li>') == 25
+            assert payload['content'].count('href="#item-featured-') == 20
+            assert '重点资讯目录' in payload['content']
             assert '<details>' in payload['content'] and '<details open' not in payload['content']
             assert '<script>' not in payload['content']
             for i in range(25):

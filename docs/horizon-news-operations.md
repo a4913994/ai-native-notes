@@ -12,7 +12,7 @@ GitHub Secrets：`HORIZON_DEEPSEEK_API_KEY`、`HORIZON_BASE_URL`、`NEWS_SYNC_TO
 
 Worker Secret：`NEWS_SYNC_TOKEN`，与 GitHub 同名 secret 相同，仅允许资讯同步接口。轮换时同时更新两端。常规 Worker 部署保留已有 secret；更换 Worker 时必须重新配置。数据库迁移 `0013` 创建独立表，按日期和语言唯一，不修改既有文章。
 
-沿用固定版本的 `data/config.github.json` 来源、筛选阈值和分类，生成仅中文，关闭上游邮件和飞书。没有 LWN 密钥时使用公开 RSS。个别来源受限会显示缺失来源；全部失败或全部 AI 分析失败不会发布。全部来源成功但没有合格资讯时发布明确的空日报。
+沿用固定版本的 `data/config.github.json` 来源和分类，生成仅中文，关闭上游邮件和飞书。没有 LWN 密钥时使用公开 RSS。个别来源受限会显示缺失来源；全部失败或全部 AI 分析失败不会发布。全部来源成功但没有新资讯时发布明确的空日报。
 
 ## 手动运行与补传
 
@@ -22,7 +22,7 @@ Worker Secret：`NEWS_SYNC_TOKEN`，与 GitHub 同名 secret 相同，仅允许�
 
 OSS Insight 查询过去 24 小时全语言开源趋势，最多取 15 个项目，归入科技。这里的语言指编程语言。趋势时间表示观察窗口，不表示仓库创建日期。2026-09-19 实测接口 `data_quality.status=unavailable`，上游事件覆盖不足，无法计算可信排名；日报展示缺失提示，接口恢复有效数据后自动纳入。HTTP 失败和空排名不会伪装成正常无资讯。现有 GitHub 来源继续工作。
 
-Twitter 使用 Apify `altimis~scweet`，需要 GitHub Secret `APIFY_TOKEN`。采集配置在 `scripts/horizon-twitter.json`，当前一次合并英文搜索覆盖 AI、开源模型、独立开发、科技和 AI 论文；查询使用 `lang:en`，每日正常运行一次 Apify Actor、最多请求 100 条，最终按过去 24 小时和上游质量阈值筛选，中文摘要发布到日报。它不是个人首页的“为你推荐”。不需要 X Cookie。Apify 用量计入账号额度；关闭 JSON 中的 `enabled` 即可单独停用 Twitter。上游异常可能在 URL 中携带 token，适配器在日志生成时脱敏，并把 Twitter 失败计入公开来源缺失提示。
+Twitter 使用 Apify `altimis~scweet`，需要 GitHub Secret `APIFY_TOKEN`。采集配置在 `scripts/horizon-twitter.json`，当前一次合并英文搜索覆盖 AI、开源模型、独立开发、科技和 AI 论文；查询使用 `lang:en`，每日正常运行一次 Apify Actor、最多请求 100 条，最终收录过去 24 小时的内容并按重要性排序，中文摘要发布到日报。它不是个人首页的“为你推荐”。不需要 X Cookie。Apify 用量计入账号额度；关闭 JSON 中的 `enabled` 即可单独停用 Twitter。上游异常可能在 URL 中携带 token，适配器在日志生成时脱敏，并把 Twitter 失败计入公开来源缺失提示。
 
 在仓库 Actions → **Horizon Daily News** → **Run workflow**：
 
@@ -38,7 +38,7 @@ Twitter 使用 Apify `altimis~scweet`，需要 GitHub Secret `APIFY_TOKEN`。采
 
 ## 验证与回退
 
-2026-09-19 附加来源验收：Actions `35434456938` 成功，云端日志确认 OpenBB 获取 60 条新闻；本期合计 102 条候选，筛选发布 10 条。匿名 API 已读取到本期更新及 OSS Insight 不可用提示。候选进入筛选不保证每个来源每天都有文章入选。489 项 Bun 测试通过。
+2026-09-19 附加来源验收：Actions `35434456938` 成功，云端日志确认 OpenBB 获取 60 条新闻；本期合计 102 条候选，筛选发布 10 条。匿名 API 已读取到本期更新及 OSS Insight 不可用提示。此记录为切换全部收录规则之前的历史验收。489 项 Bun 测试通过。
 
 2026-09-19 接入验证：Token 可用，真实 Actions 运行 `35433995837` 发布成功；随后核实 Scweet 日志提示 `Daily run limit reached`，虽然 Actor 状态为 `SUCCEEDED`，数据集却为空。已将五组主题合并成一次查询，并给空数据增加来源不可用提示。本日 Twitter 内容未通过端到端验收，需在额度恢复后检查真实结果；不要仅凭 Actor 成功状态认定采集成功。
 
