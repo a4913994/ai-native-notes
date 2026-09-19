@@ -16,6 +16,16 @@ export function ArticleReadingNav({articleRef, contentKey, news = false}: {artic
   const desktopContents = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!mobileOpen) return;
+    document.querySelector<HTMLAnchorElement>('#reading-mobile-contents nav a')?.focus({ preventScroll: true });
+    const close = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setMobileOpen(false); mobileToggle.current?.focus(); }
+    };
+    window.addEventListener('keydown', close);
+    return () => window.removeEventListener('keydown', close);
+  }, [mobileOpen]);
+
+  useEffect(() => {
     const nav = desktopContents.current?.querySelector('nav');
     const link = nav?.querySelector('[aria-current]');
     if (!nav || !link || hidden) return;
@@ -116,7 +126,7 @@ export function ArticleReadingNav({articleRef, contentKey, news = false}: {artic
       <div ref={desktopContents} id="reading-desktop-contents" hidden={hidden}>{list()}</div>
       {meter}
     </aside>
-    <div className={`reading-mobile-contents${mobileOpen ? ' is-open' : ''}`} onKeyDown={event => {if (event.key === 'Escape' && mobileOpen) {setMobileOpen(false); mobileToggle.current?.focus();}}}>
+    <div className={`reading-mobile-contents${mobileOpen ? ' is-open' : ''}`}>
       <div id="reading-mobile-contents" hidden={!mobileOpen}><div className="reading-panel-heading"><strong>{t('reading.contents')}</strong><button onClick={() => {setMobileOpen(false); mobileToggle.current?.focus();}} aria-label={t('reading.close')}>×</button></div>{list()}</div>
     </div>
     <div className="reading-dock" aria-label={t('reading.navigation')}>
