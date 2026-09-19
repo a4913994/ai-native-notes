@@ -1,5 +1,10 @@
 # Implementation status
 
+## Chinese news headlines — 2026-09-19
+
+- Added bounded DeepSeek title translation for future daily digests, including expanded-title fallbacks and all remaining headlines. The first 20 titles share translations with the table of contents; source URLs and item ordering are preserved. Invalid, incomplete or timed-out translations retry once and retain originals with a public warning on failure.
+- Updated the current 102-item production digest using title-only translation: 74 English titles translated, 28 existing Chinese titles preserved. Anonymous read-back matched the prepared artifact; all 82 folded headlines render in Chinese with `_blank` source links. Browser click opened the source in another tab and kept the news page. All 13 adapter scenarios passed; no frontend/Worker/schema change was needed.
+
 ## Horizon daily news — 2026-09-19
 
 - Deployed independent `/news` and `/news/YYYY-MM-DD` pages and `/api/news` read/sync APIs. D1 migration 0013 adds a separate day/language-unique digest table. Production D1 was exported before deployment to ignored `backups/before-horizon-20260919.sql`; original five public articles remain independent.

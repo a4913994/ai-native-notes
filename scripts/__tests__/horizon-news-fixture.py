@@ -58,6 +58,9 @@ class Runner:
 
 class Client:
     async def complete(self, **kwargs):
+        if kwargs['system'].startswith('Translate news headlines'):
+            entries = json.loads(kwargs['user'])['titles']
+            return json.dumps({'titles': [{'id': row['id'], 'title': '中文标题 ' + row['title']} for row in reversed(entries)]})
         return '{"ok":true}'
 
 
@@ -69,7 +72,7 @@ class Summarizer:
         return '## 科技新闻\n\n[资讯](https://example.com)'
 
     def _format_item(self, item, *args, **kwargs):
-        return f'### [{html.escape(item.title)}]({item.url})\n\nDetailed summary\n\n'
+        return f'### [{html.escape(kwargs.get("title_override", item.title))}]({item.url})\n\nDetailed summary\n\n'
 
 
 modules = {'src.orchestrator': N(HorizonOrchestrator=Runner), 'src.storage.manager': N(StorageManager=lambda path: path), 'src.models': N(Config=N(model_validate=lambda data: N(ai=N(), digest=N(profile_order=['tech-news'])))), 'src.ai.summarizer': N(DailySummarizer=Summarizer), 'src.ai.client': N(create_ai_client=lambda config: Client())}
@@ -78,7 +81,33 @@ with tempfile.TemporaryDirectory() as temporary, patch.dict(sys.modules, modules
     (root / 'data').mkdir()
     (root / 'data/config.github.json').write_text(json.dumps({'ai': {}, 'processing': {}, 'sources': {'rss': [{'name': 'LWN.net', 'url': 'private'}]}}))
     output = root / 'digest.json'
-    if scenario == 'extra-sources':
+    if scenario == 'title-translation':
+        titles = ['English headline ' + str(i) for i in range(23)] + ['已有中文标题']
+        translated, warnings = asyncio.run(adapter.translate_titles(titles, Client()))
+        assert not warnings and translated[-1] == titles[-1]
+        assert translated[:-1] == ['中文标题 ' + title for title in titles[:-1]]
+        class BrokenClient:
+            def __init__(self, response):
+                self.response, self.calls = response, 0
+            async def complete(self, **kwargs):
+                self.calls += 1
+                if isinstance(self.response, Exception):
+                    raise self.response
+                return self.response
+        for response in ['invalid json', '{"titles":[]}', '{"titles":[{"id":99,"title":"错误"}]}', '{"titles":[{"id":0,"title":"重复"},{"id":0,"title":"重复"}]}', '{"titles":[{"id":0,"title":"Still English"}]}', RuntimeError('PRIVATE')]:
+            client = BrokenClient(response)
+            actual, warnings = asyncio.run(adapter.translate_titles(titles[:1], client))
+            assert actual == titles[:1] and len(warnings) == 1 and client.calls == 2
+            assert 'PRIVATE' not in warnings[0]
+        class RetryClient(Client):
+            calls = 0
+            async def complete(self, **kwargs):
+                self.calls += 1
+                return '{"titles":[]}' if self.calls == 1 else await super().complete(**kwargs)
+        client = RetryClient()
+        actual, warnings = asyncio.run(adapter.translate_titles(titles[:1], client))
+        assert not warnings and actual == translated[:1] and client.calls == 2
+    elif scenario == 'extra-sources':
         config = adapter.make_config(root)
         assert config['sources']['openbb']['watchlists'][0]['provider'] == 'yfinance'
         assert config['sources']['ossinsight']['enabled']
@@ -159,6 +188,8 @@ with tempfile.TemporaryDirectory() as temporary, patch.dict(sys.modules, modules
             assert '重点资讯目录' in payload['content']
             assert '<details>' in payload['content'] and '<details open' not in payload['content']
             assert '<script>' not in payload['content']
+            assert payload['content'].count('target="_blank"') == 5
+            assert '中文标题 Headline 0' in payload['content']
             for i in range(25):
                 assert f'https://example.com/{i}' in payload['content']
         assert 'PRIVATE' not in json.dumps(payload)
