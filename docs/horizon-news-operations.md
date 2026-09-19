@@ -16,6 +16,10 @@ Worker Secret：`NEWS_SYNC_TOKEN`，与 GitHub 同名 secret 相同，仅允许�
 
 ## 手动运行与补传
 
+附加来源配置在 `scripts/horizon-extra-sources.json`：OpenBB 使用 `yfinance`，默认关注 NVDA、MSFT、GOOGL、AMZN、META、AAPL、AMD、TSM，归入财经；无需额外密钥，不启用 SEC 报告。工作流使用 `uv sync --frozen --extra openbb` 安装上游锁定的 OpenBB 4.7.1 及提供商依赖。附加来源排除含中文汉字的标题／正文，保留原文链接，由 DeepSeek 生成中文摘要。
+
+OSS Insight 查询过去 24 小时全语言开源趋势，最多取 15 个项目，归入科技。这里的语言指编程语言。趋势时间表示观察窗口，不表示仓库创建日期。2026-09-19 实测接口 `data_quality.status=unavailable`，上游事件覆盖不足，无法计算可信排名；日报展示缺失提示，接口恢复有效数据后自动纳入。HTTP 失败和空排名不会伪装成正常无资讯。现有 GitHub 来源继续工作。
+
 Twitter 使用 Apify `altimis~scweet`，需要 GitHub Secret `APIFY_TOKEN`。采集配置在 `scripts/horizon-twitter.json`，当前一次合并英文搜索覆盖 AI、开源模型、独立开发、科技和 AI 论文；查询使用 `lang:en`，每日正常运行一次 Apify Actor、最多请求 100 条，最终按过去 24 小时和上游质量阈值筛选，中文摘要发布到日报。它不是个人首页的“为你推荐”。不需要 X Cookie。Apify 用量计入账号额度；关闭 JSON 中的 `enabled` 即可单独停用 Twitter。上游异常可能在 URL 中携带 token，适配器在日志生成时脱敏，并把 Twitter 失败计入公开来源缺失提示。
 
 在仓库 Actions → **Horizon Daily News** → **Run workflow**：

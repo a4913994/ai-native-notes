@@ -1,0 +1,26 @@
+{
+  "openbb": {
+    "enabled": true,
+    "watchlists": [
+      {
+        "name": "AI and technology companies",
+        "symbols": ["NVDA", "MSFT", "GOOGL", "AMZN", "META", "AAPL", "AMD", "TSM"],
+        "provider": "yfinance",
+        "fetch_limit": 24,
+        "category": "财经",
+        "profile": "finance-news"
+      }
+    ],
+    "fetch_filings": false
+  },
+  "ossinsight": {
+    "enabled": true,
+    "period": "past_24_hours",
+    "languages": ["All"],
+    "keywords": [],
+    "min_stars": 5,
+    "max_items": 15,
+    "category": "开源项目",
+    "profile": "tech-news"
+  }
+}

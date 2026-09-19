@@ -55,7 +55,7 @@ jobs:
       - name: Install locked Horizon dependencies
         if: steps.check.outputs.needed == 'true'
         working-directory: .horizon
-        run: uv sync --frozen
+        run: uv sync --frozen --extra openbb
       - name: Generate fresh Chinese digest
         if: steps.check.outputs.needed == 'true'
         env:

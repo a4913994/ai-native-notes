@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 import json
 import logging
 import os
+import re
 from pathlib import Path
 import sys
 import tempfile
@@ -41,6 +42,39 @@ def guard_twitter_empty_results(orchestrator):
     orchestrator.TwitterScraper = CheckedTwitterScraper
 
 
+def configure_extra_scrapers(orchestrator, cutoff):
+    class CheckedOSSInsight(orchestrator.OSSInsightScraper):
+        async def _fetch_period(self, period, language):
+            # The upstream implementation silently swallows HTTP failures.
+            response = await self.client.get(self.BASE_URL, params={'period': period, 'language': language}, timeout=30)
+            response.raise_for_status()
+            payload = response.json()
+            if payload.get('data_quality', {}).get('status') == 'unavailable':
+                logging.getLogger('src.scrapers.ossinsight').warning('OSS Insight ranking unavailable')
+                return []
+            rows = payload.get('data', {}).get('rows')
+            if not isinstance(rows, list) or not rows:
+                raise RuntimeError('OSS Insight returned no trend rows')
+            return rows
+
+        def _row_to_item(self, row, language):
+            item = super()._row_to_item(row, language)
+            if item:
+                # A trend is an observation over the collection window, not a
+                # newly published repo. Upstream uses now(), after our cutoff.
+                item.published_at = cutoff
+                item.metadata['timestamp_kind'] = 'trend_window_end'
+            return item
+    orchestrator.OSSInsightScraper = CheckedOSSInsight
+
+
+def english_extra_item(item):
+    if getattr(item, 'source_type', None) not in ('ossinsight', 'openbb'):
+        return True
+    text = (item.title or '') + ' ' + (item.content or '')
+    return bool(re.search(r'[A-Za-z]', text)) and not re.search(r'[\u3400-\u9fff]', text)
+
+
 class SourceDiagnostics(logging.Handler):
     """Upstream scrapers sometimes return [] after logging a sub-source failure."""
     def __init__(self):
@@ -49,6 +83,12 @@ class SourceDiagnostics(logging.Handler):
 
     def emit(self, record):
         template = str(record.msg)
+        if record.name == 'src.scrapers.ossinsight' and template.startswith('OSS Insight ranking unavailable'):
+            self.failed.add('OSS Insight：上游事件数据覆盖不足，暂时无法提供可信的热门项目排名')
+            return
+        if record.name == 'src.scrapers.openbb' and template.startswith(('OpenBB watchlist', 'OpenBB source')):
+            self.failed.add('OpenBB：部分财经来源获取失败，已保留其他可用内容')
+            return
         if record.name == 'src.scrapers.twitter' and template.startswith('Twitter returned no data'):
             self.failed.add('Twitter：未返回数据，可能为空或服务额度受限，本期未确认该来源可用')
             return
@@ -95,6 +135,7 @@ def make_config(root):
     config["email"] = None
     config["webhook"] = None
     config["sources"]["twitter"] = json.loads(Path(__file__).with_name("horizon-twitter.json").read_text(encoding="utf-8"))
+    config["sources"].update(json.loads(Path(__file__).with_name("horizon-extra-sources.json").read_text(encoding="utf-8")))
     for source in config["sources"]["rss"]:
         if source["name"] == "LWN.net":
             if os.environ.get("LWN_KEY"):
@@ -122,6 +163,7 @@ async def generate(root, output):
     from src.ai.client import create_ai_client
 
     end = datetime.now(timezone.utc)
+    configure_extra_scrapers(sys.modules['src.orchestrator'], end)
     start = end - timedelta(hours=24)
     day = end.astimezone(SHANGHAI).date().isoformat()
     config = Config.model_validate(make_config(root))
@@ -139,7 +181,7 @@ async def generate(root, output):
             logger.removeHandler(diagnostics)
         warnings = source_warnings(runner.last_fetch_report) + sorted(diagnostics.failed)
         # Exclude future timestamps; the edition records a fixed collection window.
-        items = [item for item in items if start <= item.published_at <= end]
+        items = [item for item in items if start <= item.published_at <= end and english_extra_item(item)]
         selected = []
         if items:
             analyzed = await runner.analyze_items(runner.merge_cross_source_duplicates(items))

@@ -17,6 +17,8 @@ spec.loader.exec_module(adapter)
 scenario = sys.argv[1]
 guard_twitter = adapter.guard_twitter_empty_results
 adapter.guard_twitter_empty_results = lambda module: None
+configure_extra = adapter.configure_extra_scrapers
+adapter.configure_extra_scrapers = lambda module, cutoff: None
 item = N(id='one', published_at=datetime.now(timezone.utc), processing=N(analysis=N(score=8)))
 
 
@@ -67,7 +69,40 @@ with tempfile.TemporaryDirectory() as temporary, patch.dict(sys.modules, modules
     (root / 'data').mkdir()
     (root / 'data/config.github.json').write_text(json.dumps({'ai': {}, 'processing': {}, 'sources': {'rss': [{'name': 'LWN.net', 'url': 'private'}]}}))
     output = root / 'digest.json'
-    if scenario == 'twitter-security':
+    if scenario == 'extra-sources':
+        config = adapter.make_config(root)
+        assert config['sources']['openbb']['watchlists'][0]['provider'] == 'yfinance'
+        assert config['sources']['ossinsight']['enabled']
+        assert not adapter.english_extra_item(N(source_type='openbb', title='中文资讯', content=''))
+        assert adapter.english_extra_item(N(source_type='openbb', title='AI chip news', content='English report'))
+        cutoff = datetime.now(timezone.utc)
+        class FakeOSS:
+            BASE_URL = 'https://example.com'
+            def _row_to_item(self, row, language):
+                return N(published_at=datetime.now(timezone.utc), metadata={})
+        module = N(OSSInsightScraper=FakeOSS)
+        configure_extra(module, cutoff)
+        scraper = module.OSSInsightScraper()
+        assert scraper._row_to_item({}, 'All').published_at == cutoff
+        diagnostic = adapter.SourceDiagnostics()
+        logging.getLogger().addHandler(diagnostic)
+        async def get(*args, **kwargs):
+            return N(raise_for_status=lambda: None, json=lambda: {'data_quality': {'status': 'unavailable'}, 'data': {'rows': []}})
+        scraper.client = N(get=get)
+        assert asyncio.run(scraper._fetch_period('past_24_hours', 'All')) == []
+        assert any('OSS Insight' in warning for warning in diagnostic.failed)
+        logging.getLogger('src.scrapers.openbb').warning('OpenBB watchlist test failed: hidden credentials')
+        assert any('OpenBB' in warning for warning in diagnostic.failed)
+        assert all('hidden credentials' not in warning for warning in diagnostic.failed)
+        async def failed_get(*args, **kwargs):
+            raise RuntimeError('network unavailable')
+        scraper.client = N(get=failed_get)
+        try:
+            asyncio.run(scraper._fetch_period('past_24_hours', 'All'))
+            raise AssertionError('Network failure was swallowed')
+        except RuntimeError:
+            pass
+    elif scenario == 'twitter-security':
         class EmptyScraper:
             async def _fetch_dataset(self, token, dataset_id):
                 return []
