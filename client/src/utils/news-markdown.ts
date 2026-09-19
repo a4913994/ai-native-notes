@@ -4,6 +4,6 @@ export function prepareNewsMarkdown(content: string): string {
     // Enrichment sometimes leaks internal search IDs instead of real citations.
     // Keep the actual source hyperlinks and reference lists intact.
     .replace(/[（(]\s*tool-\d+-\d+(?:[、,，\s]+tool-\d+-\d+)*\s*[）)]/g, '')
-    .replace(/\[tool-\d+-\d+\]/g, '')
+    .replace(/\\?\[tool-\d+-\d+\\?\](?!\()/g, '')
     .replace(/&\\#(?:x27|39);/gi, "'");
 }
