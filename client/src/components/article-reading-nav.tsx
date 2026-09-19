@@ -120,25 +120,24 @@ export function ArticleReadingNav({articleRef, contentKey, news = false}: {artic
     <div className="reading-meter-label"><span>{t('reading.progress')}</span><span>{progress}%</span></div>
     <progress aria-label={t('reading.progress')} max={100} value={progress} />
   </div>;
+  const actions = () => <div className="reading-actions">
+    <button disabled={active <= 0} onClick={() => jump(headings[active - 1])} aria-label={t('reading.previous_section')}>← {t('reading.previous_short')}</button>
+    <button disabled={!headings.length || active >= headings.length - 1} onClick={() => jump(headings[Math.max(0, active + 1)])} aria-label={t('reading.next_section')}>{t('reading.next_short')} →</button>
+    <button onClick={() => {setReturnY(window.scrollY);if (mobileOpen) mobileToggle.current?.focus({preventScroll:true});setMobileOpen(false);window.scrollTo({top:0, behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});}}>{t('reading.top')}</button>
+    {returnY !== null && <button onClick={() => {window.scrollTo({top:returnY, behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});setReturnY(null);if (mobileOpen) mobileToggle.current?.focus({preventScroll:true});setMobileOpen(false);}}>{t('reading.return_position')}</button>}
+  </div>;
   return <>
     <aside className={`reading-sidebar${hidden ? ' is-collapsed' : ''}`} aria-label={t('reading.navigation')}>
       <div className="reading-sidebar-heading"><h2>{t('reading.contents')}</h2><button type="button" aria-expanded={!hidden} aria-controls="reading-desktop-contents" onClick={() => setHidden(!hidden)}>{t(hidden ? 'reading.show' : 'reading.hide')}</button></div>
       <div ref={desktopContents} id="reading-desktop-contents" hidden={hidden}>{list()}</div>
       {meter}
+      {actions()}
     </aside>
     <div className={`reading-mobile-contents${mobileOpen ? ' is-open' : ''}`}>
-      <div id="reading-mobile-contents" hidden={!mobileOpen}><div className="reading-panel-heading"><strong>{t('reading.contents')}</strong><button onClick={() => {setMobileOpen(false); mobileToggle.current?.focus();}} aria-label={t('reading.close')}>×</button></div>{list()}</div>
+      <div id="reading-mobile-contents" hidden={!mobileOpen}><div className="reading-panel-heading"><strong>{t('reading.contents')}</strong><button onClick={() => {setMobileOpen(false); mobileToggle.current?.focus();}} aria-label={t('reading.close')}>×</button></div>{list()}{actions()}</div>
     </div>
     <div className="reading-dock" aria-label={t('reading.navigation')}>
-      <div className="reading-dock-context" aria-live="off">{active >= 0 ? `${active + 1} / ${headings.length} · ${headings[active]?.text.replace(/\s*⭐️?\s*[\d.?]+\/10$/, '')}` : t('reading.start')}</div>
-      <div className="reading-dock-actions">
-        <button ref={mobileToggle} className="reading-dock-contents" aria-expanded={mobileOpen} aria-controls="reading-mobile-contents" onClick={() => setMobileOpen(!mobileOpen)}>{t('reading.contents')}</button>
-        <button disabled={active <= 0} onClick={() => jump(headings[active - 1])} aria-label={t('reading.previous_section')}>← <span>{t('reading.previous_short')}</span></button>
-        <button disabled={!headings.length || active >= headings.length - 1} onClick={() => jump(headings[Math.max(0, active + 1)])} aria-label={t('reading.next_section')}><span>{t('reading.next_short')}</span> →</button>
-        {returnY !== null && <button onClick={() => {window.scrollTo({top:returnY, behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});setReturnY(null);}}>{t('reading.return_position')}</button>}
-        <button onClick={() => {setReturnY(window.scrollY);window.scrollTo({top:0, behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});}}>{t('reading.top')}</button>
-        <span className="reading-dock-percent" aria-label={`${t('reading.progress')} ${progress}%`}>{progress}%</span>
-      </div>
+      <button ref={mobileToggle} className="reading-dock-contents" aria-label={t('reading.contents')} aria-expanded={mobileOpen} aria-controls="reading-mobile-contents" onClick={() => setMobileOpen(!mobileOpen)}><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 6h16M4 12h16M4 18h10" /></svg></button>
     </div>
   </>;
 }

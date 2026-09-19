@@ -1,5 +1,11 @@
 # Implementation status
 
+## Unobtrusive reading tools — 2026-09-19
+
+- Removed the persistent bottom toolbar from desktop reading pages. Previous/next, return position and top actions now sit beneath progress in the existing contents sidebar, outside the article column. The sidebar reserves room for the controls on short screens.
+- Narrow screens keep only a 44px corner contents button; the full controls appear on demand in the contents panel and close after navigation. Escape and close preserve keyboard focus; top/return restore focus to the visible trigger.
+- Eight reading navigation/history/progress tests and the TypeScript production build passed. Browser preview verified the desktop rail stays outside the article, and the 390px mobile page has no horizontal overflow, opens its menu and closes after a section jump.
+
 ## Chinese news headlines — 2026-09-19
 
 - Added bounded DeepSeek title translation for future daily digests, including expanded-title fallbacks and all remaining headlines. The first 20 titles share translations with the table of contents; source URLs and item ordering are preserved. Invalid, incomplete or timed-out translations retry once and retain originals with a public warning on failure.
