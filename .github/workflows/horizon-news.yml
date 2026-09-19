@@ -1,0 +1,88 @@
+name: Horizon Daily News
+on:
+  schedule:
+    - cron: '37 23 * * *'
+    - cron: '17 1 * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Regenerate even if today's digest exists
+        type: boolean
+        default: false
+      artifact_run_id:
+        description: Retry publishing the digest artifact from this run (no AI calls)
+        type: string
+        default: ''
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: horizon-news-production
+  cancel-in-progress: false
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      BLOG_URL: https://aifield.cc
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check today's publication
+        id: check
+        if: inputs.artifact_run_id == ''
+        env:
+          FORCE: ${{ inputs.force }}
+        run: |
+          if [ "$FORCE" = "true" ]; then
+            python scripts/horizon-news.py check --force
+          else
+            python scripts/horizon-news.py check
+          fi
+      - name: Checkout pinned Horizon
+        if: steps.check.outputs.needed == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: Thysrael/Horizon
+          ref: 0d7b8f0656974271ce3129026513cfe546c66058
+          path: .horizon
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+        if: steps.check.outputs.needed == 'true'
+      - name: Install locked Horizon dependencies
+        if: steps.check.outputs.needed == 'true'
+        working-directory: .horizon
+        run: uv sync --frozen
+      - name: Generate fresh Chinese digest
+        if: steps.check.outputs.needed == 'true'
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.HORIZON_DEEPSEEK_API_KEY }}
+          HORIZON_BASE_URL: ${{ secrets.HORIZON_BASE_URL }}
+          HORIZON_MODEL: ${{ vars.HORIZON_MODEL }}
+          LWN_KEY: ${{ secrets.HORIZON_LWN_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: .horizon/.venv/bin/python scripts/horizon-news.py generate
+      - name: Preserve generated digest before publishing
+        if: steps.check.outputs.needed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: horizon-news
+          path: artifacts/horizon-news/digest.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Restore digest for publication retry
+        if: inputs.artifact_run_id != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: horizon-news
+          path: artifacts/horizon-news
+          run-id: ${{ inputs.artifact_run_id }}
+          github-token: ${{ github.token }}
+      - name: Publish and read back
+        if: steps.check.outputs.needed == 'true' || inputs.artifact_run_id != ''
+        env:
+          NEWS_SYNC_TOKEN: ${{ secrets.NEWS_SYNC_TOKEN }}
+        run: python scripts/horizon-news.py publish

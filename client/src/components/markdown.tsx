@@ -9,6 +9,8 @@ import {
 } from "react-syntax-highlighter/dist/esm/styles/prism";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
+import rehypeSanitize from 'rehype-sanitize';
+import { newsMarkdownSchema } from './news-markdown-schema';
 import gfm from "remark-gfm";
 import remarkMermaid from "../remark/remarkMermaid";
 import { remarkAlert } from "remark-github-blockquote-alert";
@@ -123,7 +125,7 @@ function MarkdownImage({
   );
 }
 
-export function Markdown({ content }: { content: string }) {
+export function Markdown({ content, untrusted = false }: { content: string; untrusted?: boolean }) {
   const { t } = useTranslation();
   const colorMode = useColorMode();
   const [index, setIndex] = React.useState(-1);
@@ -140,10 +142,10 @@ export function Markdown({ content }: { content: string }) {
       className="toc-content min-w-0 dark:text-neutral-300 [overflow-wrap:anywhere]"
       remarkPlugins={[gfm, remarkMermaid, remarkMath, remarkAlert, remarkBreaks]}
       children={content}
-      rehypePlugins={[rehypeKatex, rehypeRaw]}
+      rehypePlugins={untrusted ? [rehypeRaw, [rehypeSanitize, newsMarkdownSchema]] : [rehypeKatex, rehypeRaw]}
       components={{
         img({ node, src, ...props }) {
-          const offset = node!.position!.start.offset!;
+          const offset = node?.position?.start.offset || 0;
           const previousContent = content.slice(0, offset);
           const newlinesBefore = countNewlinesBeforeNode(
             previousContent,
@@ -440,7 +442,7 @@ export function Markdown({ content }: { content: string }) {
           return <div {...props}>{children}</div>;
         },
       }}
-    />), [content, colorMode, t])
+    />), [content, colorMode, t, untrusted])
 
 
 

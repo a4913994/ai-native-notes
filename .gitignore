@@ -40,6 +40,7 @@ dist-ssr
 /backups/
 /artifacts/
 /.env.production.local
+__pycache__/
 /wrangler.pages.toml
 
 # Bun

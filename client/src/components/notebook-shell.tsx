@@ -34,6 +34,7 @@ export function NotebookShell({ children, tools, navigation, admin = false }: {
     ['/', t('notebook.nav_home')],
     ['/newsletter', t('notebook.nav_newsletter')],
     ['/blog', t('notebook.nav_blog')],
+    ['/news', t('news.title')],
     ['https://github.com/a4913994', t('notebook.nav_github')],
     ['/socials', t('notebook.nav_socials')],
   ];

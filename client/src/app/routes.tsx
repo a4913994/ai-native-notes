@@ -7,6 +7,7 @@ import { NotebookShell } from "../components/notebook-shell";
 import { Tips, TipsPage } from "../components/tips";
 import { CallbackPage } from "../page/callback";
 import { NewsletterPage } from "../page/newsletter";
+import { NewsPage } from '../page/news';
 import { SocialsPage } from "../page/socials";
 import { CompatTasksPage } from "../page/compat-tasks";
 import { ErrorPage } from "../page/error";
@@ -48,6 +49,9 @@ export function AppRoutes() {
       <AppRoute path="/newsletter">
         <NewsletterPage />
       </AppRoute>
+
+      <AppRoute path="/news"><NewsPage /></AppRoute>
+      <AppRoute path="/news/:date">{params => <NewsPage date={params.date} />}</AppRoute>
 
       <AppRoute path="/socials">
         <SocialsPage />

@@ -867,5 +867,19 @@
     "hide": "閉じる",
     "show": "開く",
     "no_headings": "見出しはありません"
+  },
+  "news": {
+    "title": "News",
+    "intro": "A daily digest of technology, engineering and finance. Content is generated in Chinese.",
+    "missing": "No digest for this date.",
+    "latest": "Latest digest",
+    "empty": "The first digest is being prepared.",
+    "pending": "Today’s digest is not available yet. Latest edition: {{date}}.",
+    "generated": "AI generated · Updated",
+    "window": "Collection window",
+    "partial": "Some sources were unavailable",
+    "history": "Past digests",
+    "previous": "Previous",
+    "next": "Next"
   }
 }

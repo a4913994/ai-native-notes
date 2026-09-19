@@ -4,6 +4,16 @@ import { index, integer, sqliteTable, text, unique } from "drizzle-orm/sqlite-co
 const created_at = integer("created_at", { mode: 'timestamp' }).default(sql`(unixepoch())`).notNull();
 const updated_at = integer("updated_at", { mode: 'timestamp' }).default(sql`(unixepoch())`).notNull();
 
+export const newsDigests = sqliteTable('news_digests', {
+    id: integer('id').primaryKey(),
+    date: text('date').notNull(),
+    language: text('language').notNull(),
+    payload: text('payload').notNull(),
+    generatedAt: text('generated_at').notNull(),
+    publishedAt: text('published_at').notNull(),
+    updatedAt: text('updated_at').notNull(),
+}, table => ({ dayLanguage: unique('news_day_language').on(table.date, table.language) }));
+
 export const feeds = sqliteTable("feeds", {
     id: integer("id").primaryKey(),
     alias: text("alias"),
