@@ -36,6 +36,8 @@ Twitter 使用 Apify `altimis~scweet`，需要 GitHub Secret `APIFY_TOKEN`。采
 
 ## 验证与回退
 
+2026-09-19 附加来源验收：Actions `35434456938` 成功，云端日志确认 OpenBB 获取 60 条新闻；本期合计 102 条候选，筛选发布 10 条。匿名 API 已读取到本期更新及 OSS Insight 不可用提示。候选进入筛选不保证每个来源每天都有文章入选。489 项 Bun 测试通过。
+
 2026-09-19 接入验证：Token 可用，真实 Actions 运行 `35433995837` 发布成功；随后核实 Scweet 日志提示 `Daily run limit reached`，虽然 Actor 状态为 `SUCCEEDED`，数据集却为空。已将五组主题合并成一次查询，并给空数据增加来源不可用提示。本日 Twitter 内容未通过端到端验收，需在额度恢复后检查真实结果；不要仅凭 Actor 成功状态认定采集成功。
 
 变更后运行 `bun test`、`bun run check`、`bun run build:client`；Python adapter 的离线失败场景由 `bun:test` 调用标准 Python，不引入额外测试框架。
