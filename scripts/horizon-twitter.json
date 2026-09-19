@@ -3,11 +3,7 @@
   "mode": "apify",
   "users": [],
   "keywords": [
-    "(\"artificial intelligence\" OR LLM) lang:en -filter:replies",
-    "(\"open source model\" OR \"open weights\") lang:en -filter:replies",
-    "(indiehacker OR buildinpublic OR \"indie developer\") lang:en -filter:replies",
-    "(technology OR robotics OR semiconductor) lang:en -filter:replies",
-    "(\"machine learning\" OR \"deep learning\" OR LLM) (paper OR arxiv OR research) lang:en -filter:replies"
+    "(\"artificial intelligence\" OR LLM OR \"open source model\" OR \"open weights\" OR indiehacker OR buildinpublic OR \"indie developer\" OR technology OR robotics OR semiconductor OR \"machine learning\" OR \"deep learning\" OR arxiv) lang:en -filter:replies"
   ],
   "fetch_limit": 100,
   "category": "科技",

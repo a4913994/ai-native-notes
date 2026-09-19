@@ -15,6 +15,8 @@ spec = importlib.util.spec_from_file_location('adapter', Path(__file__).parents[
 adapter = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(adapter)
 scenario = sys.argv[1]
+guard_twitter = adapter.guard_twitter_empty_results
+adapter.guard_twitter_empty_results = lambda module: None
 item = N(id='one', published_at=datetime.now(timezone.utc), processing=N(analysis=N(score=8)))
 
 
@@ -66,6 +68,15 @@ with tempfile.TemporaryDirectory() as temporary, patch.dict(sys.modules, modules
     (root / 'data/config.github.json').write_text(json.dumps({'ai': {}, 'processing': {}, 'sources': {'rss': [{'name': 'LWN.net', 'url': 'private'}]}}))
     output = root / 'digest.json'
     if scenario == 'twitter-security':
+        class EmptyScraper:
+            async def _fetch_dataset(self, token, dataset_id):
+                return []
+        module = N(TwitterScraper=EmptyScraper)
+        guard_twitter(module)
+        diagnostic = adapter.SourceDiagnostics()
+        logging.getLogger().addHandler(diagnostic)
+        assert asyncio.run(module.TwitterScraper()._fetch_dataset('private', 'dataset')) == []
+        assert any('Twitter' in warning for warning in diagnostic.failed)
         twitter = adapter.make_config(root)['sources']['twitter']
         assert twitter['keywords'] and all('lang:en' in q for q in twitter['keywords'])
         assert any('arxiv' in q for q in twitter['keywords'])

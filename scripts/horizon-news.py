@@ -29,6 +29,18 @@ def redact_apify_logs():
     logging.setLogRecordFactory(factory)
 
 
+def guard_twitter_empty_results(orchestrator):
+    """Scweet may report SUCCEEDED with no rows when its daily quota is exhausted."""
+    original = orchestrator.TwitterScraper
+    class CheckedTwitterScraper(original):
+        async def _fetch_dataset(self, token, dataset_id):
+            rows = await super()._fetch_dataset(token, dataset_id)
+            if not rows:
+                logging.getLogger('src.scrapers.twitter').warning('Twitter returned no data; source availability could not be verified')
+            return rows
+    orchestrator.TwitterScraper = CheckedTwitterScraper
+
+
 class SourceDiagnostics(logging.Handler):
     """Upstream scrapers sometimes return [] after logging a sub-source failure."""
     def __init__(self):
@@ -37,6 +49,9 @@ class SourceDiagnostics(logging.Handler):
 
     def emit(self, record):
         template = str(record.msg)
+        if record.name == 'src.scrapers.twitter' and template.startswith('Twitter returned no data'):
+            self.failed.add('Twitter：未返回数据，可能为空或服务额度受限，本期未确认该来源可用')
+            return
         terminal = template.startswith(('Error fetching', 'Error parsing', 'Reddit RSS fallback failed', 'Reddit request failed', 'Telegram request failed', 'Failed to start Apify', 'Apify run', 'Failed to fetch Apify dataset', 'Keyword search failed', 'Apify token not found'))
         if record.name.startswith('src.scrapers.') and terminal:
             # Use only an allowlisted source label, never logged URLs or keys.
@@ -100,6 +115,7 @@ async def generate(root, output):
     redact_apify_logs()
     sys.path.insert(0, str(root))
     from src.orchestrator import HorizonOrchestrator
+    guard_twitter_empty_results(sys.modules['src.orchestrator'])
     from src.storage.manager import StorageManager
     from src.models import Config
     from src.ai.summarizer import DailySummarizer

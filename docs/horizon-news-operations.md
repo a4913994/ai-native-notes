@@ -16,7 +16,7 @@ Worker Secret：`NEWS_SYNC_TOKEN`，与 GitHub 同名 secret 相同，仅允许�
 
 ## 手动运行与补传
 
-Twitter 使用 Apify `altimis~scweet`，需要 GitHub Secret `APIFY_TOKEN`。采集配置在 `scripts/horizon-twitter.json`，当前五组英文搜索覆盖 AI、开源模型、独立开发、科技和 AI 论文；每组使用 `lang:en`，每次最多请求 100 条，最终按过去 24 小时和上游质量阈值筛选，中文摘要发布到日报。它不是个人首页的“为你推荐”。不需要 X Cookie。Apify 用量计入账号额度；关闭 JSON 中的 `enabled` 即可单独停用 Twitter。上游异常可能在 URL 中携带 token，适配器在日志生成时脱敏，并把 Twitter 失败计入公开来源缺失提示。
+Twitter 使用 Apify `altimis~scweet`，需要 GitHub Secret `APIFY_TOKEN`。采集配置在 `scripts/horizon-twitter.json`，当前一次合并英文搜索覆盖 AI、开源模型、独立开发、科技和 AI 论文；查询使用 `lang:en`，每日正常运行一次 Apify Actor、最多请求 100 条，最终按过去 24 小时和上游质量阈值筛选，中文摘要发布到日报。它不是个人首页的“为你推荐”。不需要 X Cookie。Apify 用量计入账号额度；关闭 JSON 中的 `enabled` 即可单独停用 Twitter。上游异常可能在 URL 中携带 token，适配器在日志生成时脱敏，并把 Twitter 失败计入公开来源缺失提示。
 
 在仓库 Actions → **Horizon Daily News** → **Run workflow**：
 
@@ -31,6 +31,8 @@ Twitter 使用 Apify `altimis~scweet`，需要 GitHub Secret `APIFY_TOKEN`。采
 原上游整站 artifact 自动部署需要 `CLOUDFLARE_AUTO_DEPLOY=true` 才随 Build 启动；Rspress 文档站需要 `RSPRESS_PAGES_ENABLED=true`。本站当前用本地已授权的 `scripts/blog-deploy-oauth.ts` 部署 Cloudflare，未给旧整站 Action 配置 Cloudflare 令牌，避免向上游默认的 `rin` 资源发起部署。每日资讯 Action 独立运行，不受这两个开关影响。
 
 ## 验证与回退
+
+2026-09-19 接入验证：Token 可用，真实 Actions 运行 `35433995837` 发布成功；随后核实 Scweet 日志提示 `Daily run limit reached`，虽然 Actor 状态为 `SUCCEEDED`，数据集却为空。已将五组主题合并成一次查询，并给空数据增加来源不可用提示。本日 Twitter 内容未通过端到端验收，需在额度恢复后检查真实结果；不要仅凭 Actor 成功状态认定采集成功。
 
 变更后运行 `bun test`、`bun run check`、`bun run build:client`；Python adapter 的离线失败场景由 `bun:test` 调用标准 Python，不引入额外测试框架。
 
