@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "mode": "apify",
+  "users": [],
+  "keywords": [
+    "(\"artificial intelligence\" OR LLM) lang:en -filter:replies",
+    "(\"open source model\" OR \"open weights\") lang:en -filter:replies",
+    "(indiehacker OR buildinpublic OR \"indie developer\") lang:en -filter:replies",
+    "(technology OR robotics OR semiconductor) lang:en -filter:replies",
+    "(\"machine learning\" OR \"deep learning\" OR LLM) (paper OR arxiv OR research) lang:en -filter:replies"
+  ],
+  "fetch_limit": 100,
+  "category": "科技",
+  "profile": "tech-news",
+  "fetch_reply_text": false,
+  "apify_token_env": "APIFY_TOKEN",
+  "actor_id": "altimis~scweet"
+}

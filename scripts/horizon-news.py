@@ -15,6 +15,20 @@ import urllib.request
 SHANGHAI = timezone(timedelta(hours=8))
 
 
+def redact_apify_logs():
+    # Upstream puts the token in request URLs, including HTTP error messages.
+    token = os.environ.get("APIFY_TOKEN")
+    if not token:
+        return
+    previous = logging.getLogRecordFactory()
+    def factory(*args, **kwargs):
+        record = previous(*args, **kwargs)
+        record.msg = record.getMessage().replace(token, "[REDACTED]")
+        record.args = ()
+        return record
+    logging.setLogRecordFactory(factory)
+
+
 class SourceDiagnostics(logging.Handler):
     """Upstream scrapers sometimes return [] after logging a sub-source failure."""
     def __init__(self):
@@ -23,11 +37,11 @@ class SourceDiagnostics(logging.Handler):
 
     def emit(self, record):
         template = str(record.msg)
-        terminal = template.startswith(('Error fetching', 'Error parsing', 'Reddit RSS fallback failed', 'Reddit request failed', 'Telegram request failed'))
+        terminal = template.startswith(('Error fetching', 'Error parsing', 'Reddit RSS fallback failed', 'Reddit request failed', 'Telegram request failed', 'Failed to start Apify', 'Apify run', 'Failed to fetch Apify dataset', 'Keyword search failed', 'Apify token not found'))
         if record.name.startswith('src.scrapers.') and terminal:
             # Use only an allowlisted source label, never logged URLs or keys.
             source = record.name.rsplit('.', 1)[-1]
-            label = {'reddit': 'Reddit', 'rss': 'RSS', 'github': 'GitHub', 'telegram': 'Telegram', 'hackernews': 'Hacker News'}.get(source, '其他来源')
+            label = {'twitter': 'Twitter', 'reddit': 'Reddit', 'rss': 'RSS', 'github': 'GitHub', 'telegram': 'Telegram', 'hackernews': 'Hacker News'}.get(source, '其他来源')
             self.failed.add(f'{label}：部分来源获取失败，已保留其他可用内容')
 
 
@@ -65,6 +79,7 @@ def make_config(root):
     config["processing"]["profiles_dir"] = str(root / "profiles")
     config["email"] = None
     config["webhook"] = None
+    config["sources"]["twitter"] = json.loads(Path(__file__).with_name("horizon-twitter.json").read_text(encoding="utf-8"))
     for source in config["sources"]["rss"]:
         if source["name"] == "LWN.net":
             if os.environ.get("LWN_KEY"):
@@ -82,6 +97,7 @@ def source_warnings(report):
 
 
 async def generate(root, output):
+    redact_apify_logs()
     sys.path.insert(0, str(root))
     from src.orchestrator import HorizonOrchestrator
     from src.storage.manager import StorageManager

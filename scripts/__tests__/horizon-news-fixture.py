@@ -25,6 +25,8 @@ class Runner:
         self.last_fetch_report = N(status='failure' if scenario == 'all-failed' else 'partial_failure' if failed else 'success', outcomes=[N(source_name='rss', status='failure' if failed else 'success')])
 
     async def fetch_all_sources(self, start):
+        if scenario == 'twitter-failure':
+            logging.getLogger('src.scrapers.twitter').error('Failed to fetch Apify dataset example: HTTP 403')
         if scenario == 'swallowed-failure':
             logging.getLogger('src.scrapers.reddit').warning('Reddit RSS fallback failed for r/%s: %s', 'Example', 'https://secret.example/?key=PRIVATE')
         return [] if scenario == 'empty' else [item]
@@ -63,7 +65,18 @@ with tempfile.TemporaryDirectory() as temporary, patch.dict(sys.modules, modules
     (root / 'data').mkdir()
     (root / 'data/config.github.json').write_text(json.dumps({'ai': {}, 'processing': {}, 'sources': {'rss': [{'name': 'LWN.net', 'url': 'private'}]}}))
     output = root / 'digest.json'
-    if scenario in ('all-failed', 'ai-failed', 'enrichment-failed'):
+    if scenario == 'twitter-security':
+        twitter = adapter.make_config(root)['sources']['twitter']
+        assert twitter['keywords'] and all('lang:en' in q for q in twitter['keywords'])
+        assert any('arxiv' in q for q in twitter['keywords'])
+        with patch.dict(os.environ, {'APIFY_TOKEN': 'SECRET_TEST_TOKEN'}):
+            adapter.redact_apify_logs()
+            record = logging.getLogRecordFactory()('src.scrapers.twitter', logging.ERROR, '', 1, 'Failed to start Apify run: %s', ('https://api.apify.com/?token=SECRET_TEST_TOKEN',), None)
+            assert 'SECRET_TEST_TOKEN' not in record.getMessage()
+            handler = adapter.SourceDiagnostics()
+            handler.emit(record)
+            assert any('Twitter' in warning for warning in handler.failed)
+    elif scenario in ('all-failed', 'ai-failed', 'enrichment-failed'):
         try:
             asyncio.run(adapter.generate(root, output))
             raise AssertionError('Failure was reported as success')
@@ -82,7 +95,7 @@ with tempfile.TemporaryDirectory() as temporary, patch.dict(sys.modules, modules
         payload = json.loads(output.read_text(encoding='utf-8'))
         adapter.validate_artifact(payload)
         assert payload['status'] == ('empty' if scenario == 'empty' else 'ready')
-        assert bool(payload['sourceWarnings']) == (scenario in ('partial', 'swallowed-failure'))
+        assert bool(payload['sourceWarnings']) == (scenario in ('partial', 'swallowed-failure', 'twitter-failure'))
         assert 'PRIVATE' not in json.dumps(payload)
         payload['date'] = '2000-01-01'
         try:

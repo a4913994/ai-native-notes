@@ -64,6 +64,7 @@ jobs:
           HORIZON_MODEL: ${{ vars.HORIZON_MODEL }}
           LWN_KEY: ${{ secrets.HORIZON_LWN_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
         run: .horizon/.venv/bin/python scripts/horizon-news.py generate
       - name: Preserve generated digest before publishing
         if: steps.check.outputs.needed == 'true'

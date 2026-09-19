@@ -16,6 +16,8 @@ Worker Secret：`NEWS_SYNC_TOKEN`，与 GitHub 同名 secret 相同，仅允许�
 
 ## 手动运行与补传
 
+Twitter 使用 Apify `altimis~scweet`，需要 GitHub Secret `APIFY_TOKEN`。采集配置在 `scripts/horizon-twitter.json`，当前五组英文搜索覆盖 AI、开源模型、独立开发、科技和 AI 论文；每组使用 `lang:en`，每次最多请求 100 条，最终按过去 24 小时和上游质量阈值筛选，中文摘要发布到日报。它不是个人首页的“为你推荐”。不需要 X Cookie。Apify 用量计入账号额度；关闭 JSON 中的 `enabled` 即可单独停用 Twitter。上游异常可能在 URL 中携带 token，适配器在日志生成时脱敏，并把 Twitter 失败计入公开来源缺失提示。
+
 在仓库 Actions → **Horizon Daily News** → **Run workflow**：
 
 - 默认：当天不存在时生成并发布。
