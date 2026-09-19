@@ -22,7 +22,7 @@ def request(path, payload=None):
     base = os.environ.get("BLOG_URL", "https://aifield.cc").rstrip("/")
     if not base.startswith("https://"):
         raise ValueError("BLOG_URL must use HTTPS")
-    headers = {"Accept": "application/json"}
+    headers = {"Accept": "application/json", "User-Agent": "HorizonNews/1.0 (+https://aifield.cc/news)"}
     if payload is not None:
         headers.update({"Authorization": "Bearer " + os.environ["NEWS_SYNC_TOKEN"], "Content-Type": "application/json"})
     req = urllib.request.Request(base + "/api/news" + path, data=json.dumps(payload, ensure_ascii=False).encode() if payload is not None else None, headers=headers, method="PUT" if payload is not None else "GET")
@@ -48,9 +48,11 @@ def make_config(root):
     config["processing"]["profiles_dir"] = str(root / "profiles")
     config["email"] = None
     config["webhook"] = None
-    if not os.environ.get("LWN_KEY"):
-        for source in config["sources"]["rss"]:
-            if source["name"] == "LWN.net":
+    for source in config["sources"]["rss"]:
+        if source["name"] == "LWN.net":
+            if os.environ.get("LWN_KEY"):
+                source["url"] = source["url"].replace("${LWN_KEY}", os.environ["LWN_KEY"])
+            else:
                 source["url"] = "https://lwn.net/headlines/rss"
     return config
 
